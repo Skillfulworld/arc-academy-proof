@@ -10,67 +10,150 @@
     --border: #E2E8F0;
 }
 
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
 body {
     background-color: var(--bg-light);
     color: var(--text-dark);
     font-family: 'Inter', -apple-system, sans-serif;
-    margin: 0;
     line-height: 1.6;
+    overflow-x: hidden;
 }
 
-/* Headings: Arc Navy */
-h1, h2, .logo-text, .quiz-level-name {
+/* --- Navigation --- */
+.navbar {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 4rem;
+    z-index: 10;
+}
+
+.logo-text {
     color: var(--arc-navy);
     font-family: 'Orbitron', sans-serif;
     font-weight: 900;
+    letter-spacing: 2px;
 }
 
-/* Containers */
+.connect-btn-nav {
+    background: var(--arc-navy);
+    color: white;
+    border: none;
+    padding: 0.7rem 1.4rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.3s ease;
+}
+
+.connect-btn-nav:hover {
+    background: var(--arc-accent);
+    transform: translateY(-2px);
+}
+
+/* --- Screens & Layout --- */
 .screen {
     display: none;
     min-height: 100vh;
     padding: 2rem;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
 }
 
 .screen.active { display: flex; }
 
+/* --- Hero Section (Landing) --- */
+.hero-container {
+    text-align: center;
+    max-width: 850px;
+    animation: fadeIn 0.8s ease-out;
+}
+
+.hero-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 3.5rem;
+    color: var(--arc-navy);
+    margin-bottom: 1.5rem;
+    line-height: 1.1;
+}
+
+.hero-title span { color: var(--arc-accent); }
+
+.hero-subtitle {
+    color: var(--text-muted);
+    font-size: 1.15rem;
+    margin-bottom: 3rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.launch-btn {
+    background: var(--arc-navy);
+    color: white;
+    border: none;
+    padding: 1.2rem 3.5rem;
+    border-radius: 10px;
+    font-weight: 800;
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 1px;
+    cursor: pointer;
+    box-shadow: 0 10px 20px rgba(10, 31, 51, 0.1);
+    transition: all 0.3s ease;
+}
+
+.launch-btn:hover {
+    background: var(--arc-accent);
+    transform: translateY(-4px);
+    box-shadow: 0 15px 30px rgba(10, 31, 51, 0.2);
+}
+
+/* --- Dashboard & Quiz Cards --- */
 .card {
     background: var(--white);
     border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 2rem;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    max-width: 800px;
+    border-radius: 16px;
+    padding: 2.5rem;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.04);
+    max-width: 900px;
     width: 100%;
 }
 
-/* Wallet Button */
-.connect-btn {
-    background: var(--arc-navy);
-    color: var(--white); /* White text on dark element */
-    padding: 1rem 2rem;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
-    transition: transform 0.2s;
+h2 {
+    color: var(--arc-navy);
+    font-family: 'Orbitron', sans-serif;
+    margin-bottom: 1.5rem;
 }
 
-.connect-btn:hover { transform: translateY(-2px); }
-
-/* Progress Bar */
 .progress-track {
     background: var(--border);
-    height: 8px;
-    border-radius: 4px;
+    height: 10px;
+    border-radius: 5px;
     overflow: hidden;
-    margin: 1rem 0;
+    margin: 1.5rem 0;
 }
 
 .progress-fill {
-    background: var(--arc-navy);
+    background: linear-gradient(90deg, var(--arc-navy), var(--arc-accent));
     height: 100%;
-    transition: width 0.5s ease;
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- Animations --- */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+    .navbar { padding: 1.5rem; }
+    .hero-title { font-size: 2.2rem; }
+    .hero-subtitle { font-size: 1rem; }
 }
