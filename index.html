@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arc Academy | Agentic Economy</title>
+    <title>Arc Academy | Master the Agentic Economy</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Orbitron:wght@900&display=swap" rel="stylesheet">
 </head>
@@ -18,27 +18,57 @@
         </nav>
 
         <div class="hero-container">
-            <h1 class="hero-title">MASTER THE<span>AGENTIC ECONOMY</span></h1>
+            <h1 class="hero-title">MASTER THE <br><span>AGENTIC ECONOMY</span></h1>
             <button class="launch-btn" onclick="showScreen('dashboard-screen'); renderDashboard();">
                 LAUNCH APP
             </button>
-        </div>
-
-        <div class="footer-social">
-            <span>CONNECT WITH US</span>
-            <a href="https://x.com/Zkfenrir" target="_blank" class="social-link">
-                @Zkfenrir
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                </svg>
-            </a>
+            <div class="footer-social">
+                <span>CONNECT WITH US</span>
+                <a href="https://x.com/Zkfenrir" target="_blank" class="social-link">
+                    @Zkfenrir
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                </a>
+            </div>
         </div>
     </div>
 
     <div id="dashboard-screen" class="screen">
         <div class="card">
-            <h2>DASHBOARD</h2>
-            <div id="levels-grid"></div>
+            <div class="dash-header">
+                <h2>DASHBOARD</h2>
+                <div class="stats-row">
+                    <span>PROGRESS: <span id="overall-percent">0%</span></span>
+                </div>
+            </div>
+            <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+            <div id="levels-grid" class="levels-grid"></div>
+        </div>
+    </div>
+
+    <div id="quiz-screen" class="screen">
+        <div class="card">
+            <div id="quiz-header">
+                <span id="quiz-level-tag">LEVEL 01</span>
+                <h2 id="quiz-level-name">LOADING...</h2>
+            </div>
+            <div id="q-container">
+                <p id="q-text">Loading question...</p>
+                <div id="options-list"></div>
+            </div>
+            <div id="feedback-box">
+                <div id="success-box" class="feedback success">CORRECT_PROOF_RECORDED</div>
+                <div id="ngmi-box" class="feedback error">ERR: <span id="ngmi-text"></span></div>
+            </div>
+            <button id="next-btn" class="launch-btn" style="display:none; margin-top:20px; width:100%;" onclick="handleNext()">CONTINUE_SEQUENCE</button>
+        </div>
+    </div>
+
+    <div id="results-screen" class="screen">
+        <div class="card" style="text-align: center;">
+            <h2 id="result-verdict">ANALYZING_RESULTS</h2>
+            <p id="result-msg" style="margin: 20px 0; color: rgba(255,255,255,0.7);"></p>
+            <div class="score-display">SCORE: <span id="final-score-num">0</span>%</div>
+            <button id="result-main-btn" class="launch-btn" style="margin-top:30px; width:100%;">RETURN_TO_BASE</button>
         </div>
     </div>
 
