@@ -1,23 +1,22 @@
 :root {
+    --arc-dark: #061422;
     --arc-navy: #0A1F33;
-    --arc-accent: #2A5D8A;
-    --bg-light: #F4F7F9;
+    --arc-accent: #3A82C4;
     --white: #FFFFFF;
-    --text-dark: #1A202C;
-    --text-muted: #718096;
-    --success: #38A169;
-    --error: #E53E3E;
-    --border: #E2E8F0;
+    --text-dim: rgba(255, 255, 255, 0.7);
+    --border-glass: rgba(255, 255, 255, 0.1);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-    background-color: var(--bg-light);
-    color: var(--text-dark);
+    /* Rich Blue Gradient Background */
+    background: linear-gradient(135deg, var(--arc-dark) 0%, var(--arc-navy) 100%);
+    color: var(--white);
     font-family: 'Inter', -apple-system, sans-serif;
     line-height: 1.6;
     overflow-x: hidden;
+    min-height: 100vh;
 }
 
 /* --- Navigation --- */
@@ -28,35 +27,37 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.5rem 4rem;
+    padding: 2rem 4rem;
     z-index: 10;
 }
 
 .logo-text {
-    color: var(--arc-navy);
+    color: var(--white);
     font-family: 'Orbitron', sans-serif;
     font-weight: 900;
-    letter-spacing: 2px;
+    letter-spacing: 3px;
+    font-size: 1.2rem;
 }
 
 .connect-btn-nav {
-    background: var(--arc-navy);
-    color: white;
-    border: none;
+    background: transparent;
+    color: var(--white);
+    border: 1px solid var(--white);
     padding: 0.7rem 1.4rem;
-    border-radius: 8px;
+    border-radius: 4px;
     font-weight: 600;
     cursor: pointer;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     transition: all 0.3s ease;
+    letter-spacing: 1px;
 }
 
 .connect-btn-nav:hover {
-    background: var(--arc-accent);
-    transform: translateY(-2px);
+    background: var(--white);
+    color: var(--arc-dark);
 }
 
-/* --- Screens & Layout --- */
+/* --- Hero Section --- */
 .screen {
     display: none;
     min-height: 100vh;
@@ -68,134 +69,91 @@ body {
 
 .screen.active { display: flex; }
 
-/* --- Hero Section (Landing) --- */
 .hero-container {
     text-align: center;
-    max-width: 850px;
-    animation: fadeIn 0.8s ease-out;
+    max-width: 900px;
+    animation: fadeIn 1s ease-out;
 }
 
 .hero-title {
     font-family: 'Orbitron', sans-serif;
-    font-size: 3.5rem;
-    color: var(--arc-navy);
-    margin-bottom: 1.5rem;
+    font-size: 4rem;
+    color: var(--white);
+    margin-bottom: 2.5rem;
     line-height: 1.1;
+    letter-spacing: -1px;
 }
 
-.hero-title span { color: var(--arc-accent); }
-
-.hero-subtitle {
-    color: var(--text-muted);
-    font-size: 1.15rem;
-    margin-bottom: 3rem;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
+.hero-title span {
+    display: block;
+    color: var(--arc-accent);
+    margin-top: 10px;
 }
 
 .launch-btn {
-    background: var(--arc-navy);
-    color: white;
+    background: var(--white);
+    color: var(--arc-dark);
     border: none;
     padding: 1.2rem 3.5rem;
-    border-radius: 10px;
-    font-weight: 800;
+    border-radius: 4px;
+    font-weight: 900;
     font-family: 'Orbitron', sans-serif;
-    letter-spacing: 1px;
+    letter-spacing: 2px;
     cursor: pointer;
-    box-shadow: 0 10px 20px rgba(10, 31, 51, 0.1);
     transition: all 0.3s ease;
 }
 
 .launch-btn:hover {
-    background: var(--arc-accent);
-    transform: translateY(-4px);
-    box-shadow: 0 15px 30px rgba(10, 31, 51, 0.2);
+    transform: scale(1.05);
+    box-shadow: 0 0 30px rgba(58, 130, 196, 0.4);
 }
 
-/* --- Dashboard & Quiz Cards --- */
-.card {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 2.5rem;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.04);
-    max-width: 900px;
-    width: 100%;
-}
-
-h2 {
-    color: var(--arc-navy);
-    font-family: 'Orbitron', sans-serif;
-    margin-bottom: 1.5rem;
-}
-
-.progress-track {
-    background: var(--border);
-    height: 10px;
-    border-radius: 5px;
-    overflow: hidden;
-    margin: 1.5rem 0;
-}
-
-.progress-fill {
-    background: linear-gradient(90deg, var(--arc-navy), var(--arc-accent));
-    height: 100%;
-    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* --- Animations --- */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* --- Responsive --- */
-@media (max-width: 768px) {
-    .navbar { padding: 1.5rem; }
-    .hero-title { font-size: 2.2rem; }
-    .hero-subtitle { font-size: 1rem; }
-}
-/* --- Footer Social Positioning (Add this at the very bottom) --- */
+/* --- Footer Social --- */
 .footer-social {
     position: absolute;
-    bottom: 2rem;
+    bottom: 3rem;
     right: 4rem;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 0.5rem;
+    text-align: right;
 }
 
 .footer-social span {
-    font-size: 0.65rem;
-    letter-spacing: 2px;
-    color: var(--text-muted);
-    font-weight: 700;
+    display: block;
+    font-size: 0.6rem;
+    letter-spacing: 3px;
+    color: var(--text-dim);
+    margin-bottom: 0.5rem;
 }
 
 .social-link {
     display: flex;
     align-items: center;
-    gap: 8px;
+    justify-content: flex-end;
+    gap: 10px;
     text-decoration: none;
-    color: var(--arc-navy);
+    color: var(--white);
     font-weight: 700;
-    font-size: 0.9rem;
-    transition: color 0.2s;
+    font-size: 1rem;
 }
 
-.social-link:hover {
-    color: var(--arc-accent);
+/* --- Dashboard Cards (Glassmorphism) --- */
+.card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-glass);
+    backdrop-filter: blur(10px);
+    border-radius: 8px;
+    padding: 3rem;
+    width: 100%;
+    max-width: 800px;
 }
 
-/* Fix for mobile view */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
 @media (max-width: 768px) {
-    .footer-social {
-        right: 0;
-        left: 0;
-        align-items: center;
-        bottom: 1.5rem;
-    }
+    .navbar { padding: 1.5rem; }
+    .hero-title { font-size: 2.5rem; }
+    .footer-social { right: 0; left: 0; text-align: center; }
+    .social-link { justify-content: center; }
 }
