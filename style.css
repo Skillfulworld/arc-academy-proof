@@ -157,3 +157,45 @@ h2 {
     .hero-title { font-size: 2.2rem; }
     .hero-subtitle { font-size: 1rem; }
 }
+/* --- Footer Social Positioning (Add this at the very bottom) --- */
+.footer-social {
+    position: absolute;
+    bottom: 2rem;
+    right: 4rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+}
+
+.footer-social span {
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    font-weight: 700;
+}
+
+.social-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: var(--arc-navy);
+    font-weight: 700;
+    font-size: 0.9rem;
+    transition: color 0.2s;
+}
+
+.social-link:hover {
+    color: var(--arc-accent);
+}
+
+/* Fix for mobile view */
+@media (max-width: 768px) {
+    .footer-social {
+        right: 0;
+        left: 0;
+        align-items: center;
+        bottom: 1.5rem;
+    }
+}
