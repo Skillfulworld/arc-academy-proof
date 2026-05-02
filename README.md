@@ -2,7 +2,7 @@
 An educational protocol interface built for the **Arc Ecosystem**. 
 
 ### Features
-- **Web3 Auth**: Real MetaMask/Wallet connection.
+- **Web3 Auth**: work with EVM wallets.
 - **Progressive Unlocking**: Levels unlock only upon 100% mastery.
 - **Arc Aesthetic**: Styled with official branding and high-readability light theme.
 
