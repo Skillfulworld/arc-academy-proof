@@ -199,24 +199,32 @@ const state = {
 // HELPER: Show a screen
 function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
+    const target = document.getElementById(id);
+    if(target) target.classList.add('active');
 }
 
-// WALLET CONNECT
+// WALLET CONNECT - FIXED LOGIC
 async function connectWallet() {
+    const btnText = document.getElementById('btn-text');
     if (window.ethereum) {
         try {
             const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
             state.walletConnected = true;
             const shortAddr = accounts[0].substring(0, 6) + "..." + accounts[0].substring(38);
-            document.getElementById('btn-text').innerText = shortAddr;
-        } catch (e) { alert("Connection rejected."); }
-    } else { alert("Please install MetaMask!"); }
+            if(btnText) btnText.innerText = shortAddr;
+            console.log("Connected: " + accounts[0]);
+        } catch (e) { 
+            console.error("Connection rejected."); 
+        }
+    } else { 
+        alert("Please install MetaMask!"); 
+    }
 }
 
-// DASHBOARD RENDER
+// DASHBOARD RENDER - FIXED FOR MODERN UI
 function renderDashboard() {
     const grid = document.getElementById('levels-grid');
+    if(!grid) return;
     grid.innerHTML = '';
     
     Object.keys(DB).forEach((key, index) => {
@@ -226,12 +234,13 @@ function renderDashboard() {
         const isCompleted = state.completedLevels.includes(key);
 
         const card = document.createElement('div');
+        // Matches the new CSS class names
         card.className = `level-card ${isLocked ? 'locked' : (isCompleted ? 'completed' : '')}`;
         
         card.innerHTML = `
             <div class="level-header">
                 <span>LEVEL 0${levelNum}</span>
-                ${isCompleted ? '<span class="status">✓</span>' : ''}
+                ${isCompleted ? '<span class="status">✓ VERIFIED</span>' : ''}
             </div>
             <h3>${level.title}</h3>
             <p>${level.subtitle}</p>
@@ -245,10 +254,15 @@ function renderDashboard() {
         grid.appendChild(card);
     });
 
+    // Handle progress numbers if elements exist
+    const fill = document.getElementById('progress-fill');
+    const pct = document.getElementById('overall-percent');
+    const cnt = document.getElementById('levels-count');
+    
     const progress = (state.completedLevels.length / 5) * 100;
-    document.getElementById('progress-fill').style.width = progress + "%";
-    document.getElementById('overall-percent').innerText = Math.round(progress) + "%";
-    document.getElementById('levels-count').innerText = `${state.completedLevels.length}/5`;
+    if(fill) fill.style.width = progress + "%";
+    if(pct) pct.innerText = Math.round(progress) + "%";
+    if(cnt) cnt.innerText = `${state.completedLevels.length}/5`;
 }
 
 // QUIZ LOGIC
@@ -264,20 +278,25 @@ function loadQuestion() {
     const level = DB[state.currentLevel];
     const q = level.questions[state.currentQIndex];
     
-    document.getElementById('quiz-level-name').innerText = level.title;
-    document.getElementById('quiz-level-tag').innerText = `LEVEL 0${Object.keys(DB).indexOf(state.currentLevel) + 1}`;
-    document.getElementById('q-text').innerText = q.question;
+    const titleEl = document.getElementById('quiz-level-name');
+    const tagEl = document.getElementById('quiz-level-tag');
+    const textEl = document.getElementById('q-text');
+    
+    if(titleEl) titleEl.innerText = level.title;
+    if(tagEl) tagEl.innerText = `LEVEL 0${Object.keys(DB).indexOf(state.currentLevel) + 1}`;
+    if(textEl) textEl.innerText = q.question;
     
     const optionsList = document.getElementById('options-list');
-    optionsList.innerHTML = '';
-    
-    q.options.forEach(opt => {
-        const btn = document.createElement('button');
-        btn.className = 'option-btn';
-        btn.innerText = opt;
-        btn.onclick = () => checkAnswer(opt, btn);
-        optionsList.appendChild(btn);
-    });
+    if(optionsList) {
+        optionsList.innerHTML = '';
+        q.options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt;
+            btn.onclick = () => checkAnswer(opt, btn);
+            optionsList.appendChild(btn);
+        });
+    }
 
     document.getElementById('next-btn').style.display = 'none';
     document.getElementById('success-box').style.display = 'none';
@@ -297,7 +316,8 @@ function checkAnswer(selected, btn) {
     } else {
         btn.style.borderColor = "#E53E3E";
         btn.style.color = "#E53E3E";
-        document.getElementById('ngmi-text').innerText = q.ngmi;
+        const ngmiTxt = document.getElementById('ngmi-text');
+        if(ngmiTxt) ngmiTxt.innerText = q.ngmi;
         document.getElementById('ngmi-box').style.display = 'block';
     }
     document.getElementById('next-btn').style.display = 'block';
@@ -317,10 +337,12 @@ function showResults() {
     const total = DB[state.currentLevel].questions.length;
     const percent = (state.score / total) * 100;
     
-    document.getElementById('final-score-num').innerText = Math.round(percent);
+    const finalScore = document.getElementById('final-score-num');
     const verdict = document.getElementById('result-verdict');
     const msg = document.getElementById('result-msg');
     const mainBtn = document.getElementById('result-main-btn');
+
+    if(finalScore) finalScore.innerText = Math.round(percent);
 
     if(percent === 100) {
         verdict.innerText = "VERIFIED_ARCHITECT";
