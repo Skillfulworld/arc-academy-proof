@@ -14,21 +14,23 @@
             <img src="logo.png" alt="Arc Academy Logo" class="nav-logo">
             <span class="logo-text">ARC // ACADEMY</span>
         </div>
+
         <div class="wallet-wrapper">
-            <div class="checkin-wrapper" onclick="toggleCheckinModal(true)" style="margin-right: 20px; cursor: pointer; position: relative; display: flex; align-items: center;">
-                <span class="checkin-icon" style="font-size: 1.2rem;">📅</span>
+            <div class="checkin-wrapper" onclick="toggleCheckinModal(true)">
+                <span class="checkin-icon">📅</span>
                 <div id="checkin-dot" class="notification-dot active"></div>
             </div>
 
             <button class="connect-btn-nav" id="wallet-btn" onclick="handleWalletAction()">
                 <span id="btn-text">CONNECT WALLET</span>
             </button>
+
             <div id="profile-dropdown" class="dropdown-content">
                 <div class="dropdown-header">ARCHITECT_NODE</div>
                 <a onclick="navigate('profile')">👤 VIEW PROFILE</a>
                 <a onclick="navigate('dashboard')">🏆 MY PROGRESS</a>
-                <hr style="border: 0.5px solid rgba(255,255,255,0.1); margin: 5px 0;">
-                <a onclick="disconnect()" class="logout" style="color: #ff4d4d;">🚪 DISCONNECT</a>
+                <hr style="border: 0.5px solid var(--border); margin: 5px 0;">
+                <a onclick="disconnect()" style="color: #ff4d4d;">🚪 DISCONNECT</a>
             </div>
         </div>
     </nav>
@@ -40,29 +42,29 @@
             
             <div class="footer-social" style="margin-top: 40px;">
                 <span style="font-size: 0.7rem; letter-spacing: 2px; color: rgba(255,255,255,0.4);">CONNECT WITH US</span><br>
-                <a href="https://x.com/Zkfenrir" target="_blank" class="social-link" style="color: var(--arc-purple); text-decoration: none; font-family: 'Orbitron'; font-size: 0.9rem;">@Zkfenrir</a>
+                <a href="https://x.com/Zkfenrir" target="_blank" style="color: var(--arc-purple); text-decoration: none; font-family: 'Orbitron';">@Zkfenrir</a>
             </div>
         </div>
     </section>
 
     <section id="dashboard-screen" class="page-section">
-        <div class="card dashboard-card">
+        <div class="card">
             <div class="dash-header">
-                <h2>ACADEMY_DASHBOARD</h2>
-                <div class="stats-row">
-                    <span>PROGRESS: <span id="overall-percent">0%</span></span>
+                <h2 style="font-family: 'Orbitron'; margin-bottom: 10px;">ACADEMY_DASHBOARD</h2>
+                <div class="stats-row" style="margin-bottom: 20px;">
+                    <span style="font-size: 0.8rem; color: var(--arc-purple);">PROGRESS: <span id="overall-percent">0%</span></span>
                 </div>
             </div>
-            <div class="progress-track">
-                <div class="progress-fill" id="progress-fill"></div>
+            <div style="width: 100%; height: 4px; background: var(--border); border-radius: 2px; margin-bottom: 30px;">
+                <div id="progress-fill" style="width: 0%; height: 100%; background: var(--arc-purple); transition: 0.5s;"></div>
             </div>
             <div id="levels-grid" class="levels-grid"></div>
         </div>
     </section>
 
     <section id="profile-screen" class="page-section">
-        <div class="card profile-card">
-            <h2>ARCHITECT_PROFILE</h2>
+        <div class="card">
+            <h2 style="font-family: 'Orbitron'; margin-bottom: 20px;">ARCHITECT_PROFILE</h2>
             <div class="profile-form">
                 <div class="input-group">
                     <label>DISPLAY_NAME</label>
@@ -82,65 +84,32 @@
                         <input type="text" id="discord-handle" placeholder="username#0000">
                     </div>
                 </div>
-                <button class="launch-btn save-btn" onclick="saveProfileChanges()" style="margin-top: 10px;">SAVE CHANGES</button>
+                <button class="launch-btn" onclick="saveProfileChanges()" style="margin-top: 10px; background: var(--arc-purple); color: white;">SAVE CHANGES</button>
             </div>
-            <button class="back-link" onclick="navigate('dashboard')">← RETURN_TO_DASHBOARD</button>
+            <button class="back-link" onclick="navigate('dashboard')" style="background: none; border: none; color: gray; cursor: pointer; margin-top: 20px;">← RETURN_TO_DASHBOARD</button>
         </div>
     </section>
 
     <section id="quiz-screen" class="page-section">
-        <div class="card quiz-card">
+        <div class="card">
             <div id="quiz-header">
                 <span id="quiz-level-tag" style="color: var(--arc-purple); font-family: 'Orbitron'; font-size: 0.7rem;">LEVEL_PROMPT</span>
-                <h2 id="quiz-level-name">LOADING...</h2>
+                <h2 id="quiz-level-name" style="font-family: 'Orbitron';">INITIALIZING...</h2>
             </div>
             <div id="q-container">
-                <p id="q-text" style="margin: 20px 0; font-size: 1.1rem; line-height: 1.4;">Initialising data stream...</p>
+                <p id="q-text" style="margin: 20px 0; font-size: 1.1rem; line-height: 1.4;">Accessing secure stream...</p>
                 <div id="options-list"></div>
             </div>
             <div id="feedback-box">
-                <div id="success-box" class="feedback success" style="display:none; color: #38a169; margin-top: 15px; font-weight: bold;">CORRECT_PROOF_RECORDED</div>
-                <div id="ngmi-box" class="feedback error" style="display:none; color: #e53e3e; margin-top: 15px;">ERR: <span id="ngmi-text"></span></div>
+                <div id="success-box" style="display:none; color: #38a169; font-weight: bold; margin-top: 15px;">CORRECT_PROOF_RECORDED</div>
+                <div id="ngmi-box" style="display:none; color: #e53e3e; margin-top: 15px;">ERR: <span id="ngmi-text"></span></div>
             </div>
-            <button id="next-btn" class="launch-btn" style="display:none; margin-top:20px; width:100%;" onclick="handleNext()">CONTINUE_SEQUENCE</button>
+            <button id="next-btn" class="launch-btn" style="display:none; margin-top:20px;" onclick="handleNext()">CONTINUE_SEQUENCE</button>
         </div>
     </section>
-
-    <section id="results-screen" class="page-section">
-        <div class="card result-card" style="text-align: center;">
-            <h2 id="result-verdict">ANALYZING_RESULTS</h2>
-            <p id="result-msg" style="margin: 15px 0;"></p>
-            <div class="score-display" style="font-size: 1.5rem; font-family: 'Orbitron';">ACCURACY: <span id="final-score-num" style="color: var(--arc-purple);">0</span>%</div>
-            <button id="result-main-btn" class="launch-btn" style="margin-top:30px; width:100%;">RETURN_TO_BASE</button>
-        </div>
-    </section>
-
-    <script src="app.js" defer></script>
-
-    <div id="login-modal" class="modal-overlay" style="display:none;">
-        <div class="card login-card" id="login-content">
-            <h2 style="font-family: 'Orbitron'; color: var(--arc-purple);">INITIALIZE_IDENTITY</h2>
-            <p style="font-size: 0.8rem; margin-bottom: 20px; opacity: 0.7;">Select access method to sync progress.</p>
-            
-            <button class="launch-btn" onclick="connectAndSign()" style="width:100%; margin-bottom: 15px;">
-                CONNECT METAMASK
-            </button>
-            
-            <div style="margin: 15px 0; opacity: 0.3; font-size: 0.7rem;">— OR CONTINUE WITH —</div>
-            
-            <input type="email" id="email-input" placeholder="architect@arc.network" 
-                   style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 4px; margin-bottom: 10px;">
-            
-            <button class="launch-btn" onclick="handleEmailLogin()" style="width:100%; background: var(--arc-purple);">
-                LOGIN WITH EMAIL
-            </button>
-            
-            <button class="back-link" onclick="toggleLoginModal(false)" style="margin-top: 20px; display: block; width: 100%;">CANCEL</button>
-        </div>
-    </div>
 
     <div id="checkin-modal" class="modal-overlay" style="display:none;">
-        <div class="card login-card" style="max-width: 500px;">
+        <div class="card">
             <h2 style="font-family: 'Orbitron'; color: var(--arc-purple);">DAILY_PROTOCOL_SYNC</h2>
             <p style="font-size: 0.8rem; margin-bottom: 20px; opacity: 0.7;">Maintain your streak to amplify Architect points.</p>
             
@@ -150,9 +119,31 @@
             <button id="checkin-btn" class="launch-btn" onclick="processCheckIn()" style="width:100%; margin-top: 10px;">
                 SIGN TRANSACTION (ARC_TESTNET)
             </button>
-            <button class="back-link" onclick="toggleCheckinModal(false)" style="margin-top: 20px; display: block; width: 100%;">CLOSE</button>
+            <button class="back-link" onclick="toggleCheckinModal(false)" style="margin-top: 20px; display: block; width: 100%; background: none; border: none; color: gray;">CLOSE</button>
         </div>
     </div>
 
+    <div id="login-modal" class="modal-overlay" style="display:none;">
+        <div class="card">
+            <h2 style="font-family: 'Orbitron'; color: var(--arc-purple);">INITIALIZE_IDENTITY</h2>
+            <p style="font-size: 0.8rem; margin-bottom: 20px; opacity: 0.7;">Select access method to sync progress.</p>
+            
+            <button class="launch-btn" onclick="connectAndSign()" style="width:100%; margin-bottom: 15px; background: white; color: black;">
+                CONNECT METAMASK
+            </button>
+            
+            <div style="margin: 15px 0; opacity: 0.3; font-size: 0.7rem;">— OR CONTINUE WITH —</div>
+            
+            <input type="email" id="email-input" placeholder="architect@arc.network" style="width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: white; border-radius: 4px; margin-bottom: 10px;">
+            
+            <button class="launch-btn" onclick="handleEmailLogin()" style="width:100%; background: var(--arc-purple); color: white;">
+                LOGIN WITH EMAIL
+            </button>
+            
+            <button class="back-link" onclick="toggleLoginModal(false)" style="margin-top: 20px; display: block; width: 100%; background: none; border: none; color: gray;">CANCEL</button>
+        </div>
+    </div>
+
+    <script src="app.js" defer></script>
 </body>
 </html>
