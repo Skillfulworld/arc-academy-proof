@@ -22,8 +22,8 @@
                 <div class="dropdown-header">ARCHITECT_NODE</div>
                 <a onclick="navigate('profile')">👤 VIEW PROFILE</a>
                 <a onclick="navigate('dashboard')">🏆 MY PROGRESS</a>
-                <hr>
-                <a onclick="disconnect()" class="logout">🚪 DISCONNECT</a>
+                <hr style="border: 0.5px solid rgba(255,255,255,0.1); margin: 5px 0;">
+                <a onclick="disconnect()" class="logout" style="color: #ff4d4d;">🚪 DISCONNECT</a>
             </div>
         </div>
     </nav>
@@ -31,12 +31,11 @@
     <section id="landing-screen" class="page-section active">
         <div class="hero-container">
             <h1 class="hero-title">MASTER THE <br><span>AGENTIC ECONOMY</span></h1>
-            <p class="hero-subtitle">The first education protocol built for the future of on-chain agents.</p>
             <button class="launch-btn" onclick="navigate('dashboard')">LAUNCH APP</button>
             
-            <div class="footer-social">
-                <span>CONNECT WITH US</span>
-                <a href="https://x.com/Zkfenrir" target="_blank" class="social-link">@Zkfenrir</a>
+            <div class="footer-social" style="margin-top: 40px;">
+                <span style="font-size: 0.7rem; letter-spacing: 2px; color: rgba(255,255,255,0.4);">CONNECT WITH US</span><br>
+                <a href="https://x.com/Zkfenrir" target="_blank" class="social-link" style="color: var(--arc-purple); text-decoration: none; font-family: 'Orbitron'; font-size: 0.9rem;">@Zkfenrir</a>
             </div>
         </div>
     </section>
@@ -60,8 +59,6 @@
     <section id="profile-screen" class="page-section">
         <div class="card profile-card">
             <h2>ARCHITECT_PROFILE</h2>
-            <p class="card-subtitle">Update your identity and link your social nodes.</p>
-            
             <div class="profile-form">
                 <div class="input-group">
                     <label>DISPLAY_NAME</label>
@@ -81,7 +78,7 @@
                         <input type="text" id="p-discord" placeholder="username#0000">
                     </div>
                 </div>
-                <button class="launch-btn save-btn" onclick="saveProfile()">SYNC_IDENTITY</button>
+                <button class="launch-btn save-btn" onclick="saveProfile()" style="margin-top: 10px;">SYNC_IDENTITY</button>
             </div>
             <button class="back-link" onclick="navigate('dashboard')">← RETURN_TO_DASHBOARD</button>
         </div>
@@ -90,27 +87,27 @@
     <section id="quiz-screen" class="page-section">
         <div class="card quiz-card">
             <div id="quiz-header">
-                <span id="quiz-level-tag">LEVEL_PROMPT</span>
+                <span id="quiz-level-tag" style="color: var(--arc-purple); font-family: 'Orbitron'; font-size: 0.7rem;">LEVEL_PROMPT</span>
                 <h2 id="quiz-level-name">LOADING...</h2>
             </div>
             <div id="q-container">
-                <p id="q-text">Initialising data stream...</p>
+                <p id="q-text" style="margin: 20px 0; font-size: 1.1rem; line-height: 1.4;">Initialising data stream...</p>
                 <div id="options-list">
                     </div>
             </div>
             <div id="feedback-box">
-                <div id="success-box" class="feedback success">CORRECT_PROOF_RECORDED</div>
-                <div id="ngmi-box" class="feedback error">ERR: <span id="ngmi-text"></span></div>
+                <div id="success-box" class="feedback success" style="display:none; color: #38a169; margin-top: 15px; font-weight: bold;">CORRECT_PROOF_RECORDED</div>
+                <div id="ngmi-box" class="feedback error" style="display:none; color: #e53e3e; margin-top: 15px;">ERR: <span id="ngmi-text"></span></div>
             </div>
             <button id="next-btn" class="launch-btn" style="display:none; margin-top:20px; width:100%;" onclick="handleNext()">CONTINUE_SEQUENCE</button>
         </div>
     </section>
 
     <section id="results-screen" class="page-section">
-        <div class="card result-card">
+        <div class="card result-card" style="text-align: center;">
             <h2 id="result-verdict">ANALYZING_RESULTS</h2>
-            <p id="result-msg"></p>
-            <div class="score-display">ACCURACY: <span id="final-score-num">0</span>%</div>
+            <p id="result-msg" style="margin: 15px 0;"></p>
+            <div class="score-display" style="font-size: 1.5rem; font-family: 'Orbitron';">ACCURACY: <span id="final-score-num" style="color: var(--arc-purple);">0</span>%</div>
             <button id="result-main-btn" class="launch-btn" style="margin-top:30px; width:100%;">RETURN_TO_BASE</button>
         </div>
     </section>
