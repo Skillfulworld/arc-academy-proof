@@ -1,427 +1,104 @@
-/* --- ARC ACADEMY MASTER STYLES --- */
-:root {
-    --arc-dark: #050d16;
-    --arc-blue: #0a1f33;
-    --arc-purple: #8b5cf6;
-    --arc-accent: #3a82c4;
-    --white: #ffffff;
-    --glass: rgba(255, 255, 255, 0.03);
-    --border: rgba(255, 255, 255, 0.1);
-}
-
-* { 
-    margin: 0; 
-    padding: 0; 
-    box-sizing: border-box; 
-}
-
-body {
-    background: radial-gradient(circle at top right, #1a1033, var(--arc-dark));
-    color: var(--white);
-    font-family: 'Inter', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-}
-
-/* --- PAGE ROUTING LOGIC --- */
-.page-section {
-    display: none; /* Hidden by default */
-    min-height: 100vh;
-    padding: 120px 20px 60px;
-    width: 100%;
-}
-
-.page-section.active {
-    display: flex; /* Shown when active */
-    flex-direction: column;
-    align-items: center;
-    animation: fadeIn 0.4s ease-out;
-}
-
-/* --- FIXED NAVBAR & LOGO --- */
-.navbar {
-    position: fixed;
-    top: 0;
-    width: 100%;
-    height: 80px; 
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 5%;
-    background: rgba(5, 13, 22, 0.95);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid var(--border);
-    z-index: 1000;
-}
-
-.logo-container {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    height: 100%;
-}
-
-.nav-logo {
-    height: 45px; /* Controlled height */
-    width: auto;
-    object-fit: contain;
-    margin-right: 12px;
-}
-
-.logo-text {
-    font-family: 'Orbitron', sans-serif;
-    font-weight: 900;
-    letter-spacing: 2px;
-    font-size: 1.1rem;
-}
-
-/* --- WALLET & DROPDOWN --- */
-.wallet-wrapper {
+/* --- NEW: CHECK-IN ICON & NOTIFICATION --- */
+.checkin-wrapper {
     position: relative;
-    display: flex;
-    align-items: center;
-}
-
-.connect-btn-nav {
-    background: transparent;
-    color: var(--white);
-    border: 1px solid var(--arc-purple);
-    padding: 0.6rem 1.2rem;
-    border-radius: 4px;
-    font-family: 'Orbitron';
-    font-size: 0.75rem;
+    margin-right: 20px;
     cursor: pointer;
-    transition: 0.3s;
+    transition: transform 0.2s;
 }
 
-.connect-btn-nav:hover {
-    background: var(--arc-purple);
-    box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+.checkin-wrapper:hover {
+    transform: scale(1.1);
 }
 
-.dropdown-content {
-    display: none; 
+.checkin-icon {
+    font-size: 1.3rem;
+    filter: drop-shadow(0 0 5px var(--arc-purple));
+}
+
+.notification-dot {
     position: absolute;
-    top: 100%; 
-    right: 0;
-    margin-top: 10px;
-    background: var(--arc-blue);
-    border: 1px solid var(--arc-purple);
-    min-width: 200px;
-    border-radius: 4px;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.5);
-    z-index: 1001;
-    overflow: hidden;
+    top: -2px;
+    right: -2px;
+    width: 10px;
+    height: 10px;
+    background: #ff4d4d; /* Bright red for attention */
+    border-radius: 50%;
+    border: 2px solid var(--arc-dark);
+    display: none; /* Hidden by default, toggled by JS */
+    box-shadow: 0 0 8px #ff4d4d;
 }
 
-.dropdown-content.active {
+.notification-dot.active {
     display: block;
+    animation: pulseRed 2s infinite;
 }
 
-.dropdown-header {
-    padding: 12px 20px;
-    font-size: 0.65rem;
-    color: var(--arc-purple);
-    font-family: 'Orbitron';
-    border-bottom: 1px solid var(--border);
+@keyframes pulseRed {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(255, 77, 77, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 77, 77, 0); }
 }
 
-.dropdown-content a {
-    display: block;
-    padding: 12px 20px;
-    color: var(--white);
-    text-decoration: none;
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-.dropdown-content a:hover {
-    background: rgba(255,255,255,0.05);
-}
-
-/* --- HERO SECTION --- */
-.hero-container {
-    text-align: center;
-    max-width: 800px;
-    margin-top: 5vh;
-}
-
-.hero-title {
-    font-family: 'Orbitron', sans-serif;
-    font-size: clamp(2.5rem, 8vw, 4.5rem);
-    line-height: 1;
-    margin-bottom: 1.5rem;
-}
-
-.hero-title span {
-    background: linear-gradient(to right, var(--arc-purple), var(--arc-accent));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-.hero-subtitle {
-    font-size: 1.1rem;
-    color: rgba(255,255,255,0.6);
-    margin-bottom: 3rem;
-}
-
-/* --- CARDS & FORMS --- */
-.card {
-    background: var(--glass);
-    border: 1px solid var(--border);
-    backdrop-filter: blur(12px);
-    padding: 2.5rem;
-    border-radius: 16px;
-    width: 100%;
-    max-width: 850px;
-}
-
-.profile-form {
+/* --- NEW: DAILY CHECK-IN MODAL & GRID --- */
+.checkin-grid {
     display: grid;
-    gap: 1.5rem;
-    margin-top: 2rem;
+    grid-template-columns: repeat(4, 1fr); /* 4 on top, 3 on bottom */
+    gap: 12px;
+    margin: 25px 0;
 }
 
-.input-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.input-group label {
-    font-family: 'Orbitron';
-    font-size: 0.7rem;
-    color: var(--arc-purple);
-}
-
-input {
-    background: rgba(0,0,0,0.3);
-    border: 1px solid var(--border);
-    padding: 12px;
-    color: white;
-    border-radius: 4px;
-    outline: none;
-}
-
-input:focus {
-    border-color: var(--arc-purple);
-}
-
-.social-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-}
-
-/* --- BUTTONS --- */
-.launch-btn {
-    background: var(--white);
-    color: var(--arc-dark);
-    border: none;
-    padding: 1rem 2.5rem;
-    font-family: 'Orbitron';
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: 0.3s;
-}
-
-.launch-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-}
-
-.back-link {
-    background: transparent;
-    border: none;
-    color: rgba(255,255,255,0.4);
-    margin-top: 2rem;
-    cursor: pointer;
-    font-size: 0.8rem;
-}
-
-/* --- QUIZ STUFF --- */
-.option-btn {
-    width: 100%;
-    padding: 1rem;
-    margin: 10px 0;
-    background: rgba(255,255,255,0.02);
-    border: 1px solid var(--border);
-    color: white;
-    text-align: left;
-    cursor: pointer;
-    border-radius: 6px;
-}
-
-.option-btn:hover:not(:disabled) {
-    background: rgba(139, 92, 246, 0.1);
-    border-color: var(--arc-purple);
-}
-
-/* --- ANIMATIONS --- */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-@media (max-width: 768px) {
-    .social-grid { grid-template-columns: 1fr; }
-}
-/* --- LOGIN MODAL POPUP --- */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(5, 13, 22, 0.9); /* Matches --arc-dark */
-    backdrop-filter: blur(10px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 2000; /* Above the navbar */
-    animation: fadeIn 0.3s ease-out;
-}
-
-.login-card {
-    width: 90%;
-    max-width: 400px;
-    background: var(--arc-blue);
-    border: 1px solid var(--arc-purple);
-    padding: 2.5rem;
-    border-radius: 12px;
-    text-align: center;
-    box-shadow: 0 0 40px rgba(139, 92, 246, 0.2);
-}
-
-.login-card h2 {
-    font-size: 1.2rem;
-    margin-bottom: 0.5rem;
-}
-
-.login-card p {
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 0.8rem;
-    margin-bottom: 2rem;
-}
-
-/* Email Input Specifics for Modal */
-#email-input {
-    width: 100%;
-    padding: 14px;
-    margin-bottom: 15px;
-    background: rgba(0, 0, 0, 0.4);
-    border: 1px solid var(--border);
-    color: white;
-    font-family: 'Inter', sans-serif;
-    border-radius: 4px;
-    transition: 0.3s;
-}
-
-#email-input:focus {
-    border-color: var(--arc-purple);
-    box-shadow: 0 0 10px rgba(139, 92, 246, 0.2);
-    background: rgba(139, 92, 246, 0.05);
-}
-
-/* Divider for "OR" */
-.login-divider {
-    margin: 20px 0;
-    display: flex;
-    align-items: center;
-    text-align: center;
-    color: rgba(255, 255, 255, 0.2);
-    font-size: 0.7rem;
-    font-family: 'Orbitron';
-}
-
-.login-divider::before,
-.login-divider::after {
-    content: '';
-    flex: 1;
-    border-bottom: 1px solid var(--border);
-}
-
-.login-divider:not(:empty)::before { margin-right: 15px; }
-.login-divider:not(:empty)::after { margin-left: 15px; }
-
-/* Modal Buttons */
-.login-card .launch-btn {
-    width: 100%;
-    font-size: 0.8rem;
-    padding: 0.8rem;
-}
-
-.login-card .back-link {
-    display: block;
-    width: 100%;
-    text-align: center;
-    margin-top: 1.5rem;
-    color: rgba(255, 255, 255, 0.4);
-    text-decoration: underline;
-}
-
-/* --- DASHBOARD LEVEL GRID --- */
-.levels-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
-    margin-top: 30px;
-    width: 100%;
-}
-
-.level-card {
+.day-box {
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid var(--border);
-    padding: 20px;
-    border-radius: 12px;
+    padding: 15px 5px;
+    border-radius: 8px;
+    text-align: center;
     transition: 0.3s;
 }
 
-.level-card.locked {
-    opacity: 0.6;
-    filter: grayscale(1);
-    cursor: not-allowed;
-}
-
-.level-card:hover:not(.locked) {
+.day-box.completed {
     border-color: var(--arc-purple);
-    background: rgba(139, 92, 246, 0.05);
+    background: rgba(139, 92, 246, 0.15);
+    color: var(--arc-purple);
+    box-shadow: inset 0 0 10px rgba(139, 92, 246, 0.1);
 }
-/* --- TOAST NOTIFICATION --- */
-.toast-notification {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: var(--arc-purple);
-    color: white;
-    padding: 12px 24px;
-    border-radius: 4px;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 0.75rem;
+
+.day-box.current {
+    border-color: var(--white);
+    background: rgba(255, 255, 255, 0.08);
+    animation: borderGlow 2s infinite alternate;
+}
+
+@keyframes borderGlow {
+    from { box-shadow: 0 0 5px rgba(255,255,255,0.1); }
+    to { box-shadow: 0 0 15px rgba(255,255,255,0.4); }
+}
+
+/* --- NEW: OTP & TRANSACTION UI --- */
+#otp-input {
+    letter-spacing: 12px !important;
     font-weight: 900;
-    letter-spacing: 1px;
-    z-index: 3000;
-    box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
-    animation: slideInRight 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    text-indent: 12px;
+    border: 2px solid var(--arc-purple) !important;
+    background: rgba(139, 92, 246, 0.05) !important;
 }
 
-.toast-notification.fade-out {
-    opacity: 0;
-    transform: translateX(20px);
-    transition: 0.5s;
+/* Forcing the check-in button to look like a high-priority action */
+#checkin-btn:not(:disabled) {
+    background: linear-gradient(135deg, var(--arc-purple), var(--arc-accent));
+    color: white;
 }
 
-@keyframes slideInRight {
-    from {
-        opacity: 0;
-        transform: translateX(100%);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
+#checkin-btn:disabled {
+    opacity: 0.5;
+    cursor: wait;
+    background: var(--glass);
+    color: rgba(255,255,255,0.3);
+}
+
+/* Responsive fix for check-in grid on mobile */
+@media (max-width: 480px) {
+    .checkin-grid {
+        grid-template-columns: repeat(3, 1fr);
     }
 }
