@@ -11,9 +11,9 @@ let state = {
 };
 
 // --- 2. ROUTING SYSTEM ---
-function navigate(pageId) {
+window.navigate = function(pageId) {
     window.location.hash = pageId;
-}
+};
 
 window.addEventListener('hashchange', () => {
     const hash = window.location.hash.replace('#', '') || 'landing';
@@ -25,13 +25,10 @@ window.addEventListener('hashchange', () => {
     }
 });
 
-// --- 3. HARDENED WALLET LOGIC (PC FIX) ---
-// Attaching to window ensures the HTML button always "sees" the function on PC
+// --- 3. WALLET LOGIC (FIXED FOR PC) ---
 window.handleWalletAction = async function() {
-    console.log("Button Triggered"); // View this in F12 Console
     if (state.address) {
-        const dropdown = document.getElementById('profile-dropdown');
-        if (dropdown) dropdown.classList.toggle('active');
+        document.getElementById('profile-dropdown').classList.toggle('active');
     } else {
         await connectAndSign();
     }
@@ -53,7 +50,7 @@ async function connectAndSign() {
         navigate('dashboard');
     } catch (e) {
         console.error(e);
-        alert("Connection failed. Check MetaMask for pending requests.");
+        alert("Connection failed. Check MetaMask.");
     }
 }
 
@@ -74,7 +71,7 @@ const DB = {
                 question: "How does someone become an Architect?", 
                 options: ["By buying tokens", "By contributing and earning points", "By application form only", "By staking assets"], 
                 correct_answer: "By contributing and earning points", 
-                ngmi: "Status is earned through effort, not capital." 
+                ngmi: "Status is earned through effort." 
             }
         ]
     }
@@ -120,6 +117,14 @@ function unlockQuiz(key) {
     setTimeout(renderDashboard, 500);
 }
 
+window.startQuiz = function(key) {
+    state.currentLevel = key;
+    state.currentQIndex = 0;
+    state.score = 0;
+    navigate('quiz');
+    loadQuestion();
+};
+
 function loadQuestion() {
     const q = DB[state.currentLevel].questions[state.currentQIndex];
     document.getElementById('quiz-level-name').innerText = DB[state.currentLevel].title;
@@ -128,7 +133,7 @@ function loadQuestion() {
     const list = document.getElementById('options-list');
     list.innerHTML = '';
 
-    // --- FISHER-YATES SHUFFLE (Better Randomizing) ---
+    // FISHER-YATES SHUFFLE
     let shuffled = [...q.options];
     for (let i = shuffled.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -156,18 +161,48 @@ function loadQuestion() {
     });
 }
 
-// --- 5. INITIALIZATION & STORAGE ---
+window.handleNext = function() {
+    state.currentQIndex++;
+    if (state.currentQIndex < DB[state.currentLevel].questions.length) {
+        loadQuestion();
+    } else {
+        showResults();
+    }
+};
+
+function showResults() {
+    navigate('results');
+    const total = DB[state.currentLevel].questions.length;
+    const pct = (state.score / total) * 100;
+    document.getElementById('final-score-num').innerText = Math.round(pct);
+    const mainBtn = document.getElementById('result-main-btn');
+    
+    if (pct === 100) {
+        document.getElementById('result-verdict').innerText = "VERIFIED_ARCHITECT";
+        if (!state.completedLevels.includes(state.currentLevel)) {
+            state.completedLevels.push(state.currentLevel);
+            state.unlockedLevels = Math.min(5, state.completedLevels.length + 1);
+            saveProfile(); 
+        }
+        mainBtn.onclick = () => navigate('dashboard');
+    } else {
+        document.getElementById('result-verdict').innerText = "STATUS: NGMI";
+        mainBtn.innerText = "RETRY MODULE";
+        mainBtn.onclick = () => startQuiz(state.currentLevel);
+    }
+}
+
+// --- 5. STORAGE & UI ---
 function saveProfile() {
-    if (!state.address) return;
-    localStorage.setItem(`arc_user_${state.address}`, JSON.stringify(state));
-    alert("Progress Saved.");
+    if (state.address) {
+        localStorage.setItem(`arc_user_${state.address}`, JSON.stringify(state));
+    }
 }
 
 function loadFromStorage() {
     const saved = localStorage.getItem(`arc_user_${state.address}`);
     if (saved) {
         const data = JSON.parse(saved);
-        state.profile = data.profile || state.profile;
         state.completedLevels = data.completedLevels || [];
         state.unlockedLevels = data.unlockedLevels || 1;
     }
@@ -180,20 +215,12 @@ function updateUI() {
     }
 }
 
+window.disconnect = function() {
+    localStorage.clear();
+    location.reload();
+};
+
 window.addEventListener('load', () => {
     if (!window.location.hash) navigate('landing');
     else window.dispatchEvent(new HashChangeEvent('hashchange'));
 });
-
-// Helper functions
-function startQuiz(key) { state.currentLevel = key; state.currentQIndex = 0; state.score = 0; navigate('quiz'); loadQuestion(); }
-function handleNext() { state.currentQIndex++; if (state.currentQIndex < DB[state.currentLevel].questions.length) loadQuestion(); else showResults(); }
-function disconnect() { localStorage.clear(); location.reload(); }
-
-function showResults() {
-    navigate('results');
-    const total = DB[state.currentLevel].questions.length;
-    const pct = (state.score / total) * 100;
-    document.getElementById('final-score-num').innerText = Math.round(pct);
-    
-    const mainBtn = document.getElementById('
