@@ -270,3 +270,124 @@ input:focus {
 @media (max-width: 768px) {
     .social-grid { grid-template-columns: 1fr; }
 }
+/* --- LOGIN MODAL POPUP --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(5, 13, 22, 0.9); /* Matches --arc-dark */
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000; /* Above the navbar */
+    animation: fadeIn 0.3s ease-out;
+}
+
+.login-card {
+    width: 90%;
+    max-width: 400px;
+    background: var(--arc-blue);
+    border: 1px solid var(--arc-purple);
+    padding: 2.5rem;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 0 40px rgba(139, 92, 246, 0.2);
+}
+
+.login-card h2 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.login-card p {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.8rem;
+    margin-bottom: 2rem;
+}
+
+/* Email Input Specifics for Modal */
+#email-input {
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 15px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--border);
+    color: white;
+    font-family: 'Inter', sans-serif;
+    border-radius: 4px;
+    transition: 0.3s;
+}
+
+#email-input:focus {
+    border-color: var(--arc-purple);
+    box-shadow: 0 0 10px rgba(139, 92, 246, 0.2);
+    background: rgba(139, 92, 246, 0.05);
+}
+
+/* Divider for "OR" */
+.login-divider {
+    margin: 20px 0;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.2);
+    font-size: 0.7rem;
+    font-family: 'Orbitron';
+}
+
+.login-divider::before,
+.login-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid var(--border);
+}
+
+.login-divider:not(:empty)::before { margin-right: 15px; }
+.login-divider:not(:empty)::after { margin-left: 15px; }
+
+/* Modal Buttons */
+.login-card .launch-btn {
+    width: 100%;
+    font-size: 0.8rem;
+    padding: 0.8rem;
+}
+
+.login-card .back-link {
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin-top: 1.5rem;
+    color: rgba(255, 255, 255, 0.4);
+    text-decoration: underline;
+}
+
+/* --- DASHBOARD LEVEL GRID --- */
+.levels-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 30px;
+    width: 100%;
+}
+
+.level-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    padding: 20px;
+    border-radius: 12px;
+    transition: 0.3s;
+}
+
+.level-card.locked {
+    opacity: 0.6;
+    filter: grayscale(1);
+    cursor: not-allowed;
+}
+
+.level-card:hover:not(.locked) {
+    border-color: var(--arc-purple);
+    background: rgba(139, 92, 246, 0.05);
+}
