@@ -102,3 +102,107 @@
         grid-template-columns: repeat(3, 1fr);
     }
 }
+/* --- NEW: CHECK-IN ICON & NOTIFICATION --- */
+.checkin-wrapper {
+    position: relative;
+    margin-right: 20px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.checkin-wrapper:hover {
+    transform: scale(1.1);
+}
+
+.checkin-icon {
+    font-size: 1.3rem;
+    filter: drop-shadow(0 0 5px var(--arc-purple));
+}
+
+.notification-dot {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 10px;
+    height: 10px;
+    background: #ff4d4d; /* Bright red for attention */
+    border-radius: 50%;
+    border: 2px solid var(--arc-dark);
+    display: none; /* Hidden by default, toggled by JS */
+    box-shadow: 0 0 8px #ff4d4d;
+}
+
+.notification-dot.active {
+    display: block;
+    animation: pulseRed 2s infinite;
+}
+
+@keyframes pulseRed {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(255, 77, 77, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 77, 77, 0); }
+}
+
+/* --- NEW: DAILY CHECK-IN MODAL & GRID --- */
+.checkin-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4 on top, 3 on bottom */
+    gap: 12px;
+    margin: 25px 0;
+}
+
+.day-box {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    padding: 15px 5px;
+    border-radius: 8px;
+    text-align: center;
+    transition: 0.3s;
+}
+
+.day-box.completed {
+    border-color: var(--arc-purple);
+    background: rgba(139, 92, 246, 0.15);
+    color: var(--arc-purple);
+    box-shadow: inset 0 0 10px rgba(139, 92, 246, 0.1);
+}
+
+.day-box.current {
+    border-color: var(--white);
+    background: rgba(255, 255, 255, 0.08);
+    animation: borderGlow 2s infinite alternate;
+}
+
+@keyframes borderGlow {
+    from { box-shadow: 0 0 5px rgba(255,255,255,0.1); }
+    to { box-shadow: 0 0 15px rgba(255,255,255,0.4); }
+}
+
+/* --- NEW: OTP & TRANSACTION UI --- */
+#otp-input {
+    letter-spacing: 12px !important;
+    font-weight: 900;
+    text-indent: 12px;
+    border: 2px solid var(--arc-purple) !important;
+    background: rgba(139, 92, 246, 0.05) !important;
+}
+
+/* Forcing the check-in button to look like a high-priority action */
+#checkin-btn:not(:disabled) {
+    background: linear-gradient(135deg, var(--arc-purple), var(--arc-accent));
+    color: white;
+}
+
+#checkin-btn:disabled {
+    opacity: 0.5;
+    cursor: wait;
+    background: var(--glass);
+    color: rgba(255,255,255,0.3);
+}
+
+/* Responsive fix for check-in grid on mobile */
+@media (max-width: 480px) {
+    .checkin-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
