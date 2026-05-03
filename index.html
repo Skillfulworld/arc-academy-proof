@@ -9,17 +9,17 @@
 </head>
 <body>
 
-    <nav class="navbar">
-        <div class="logo-container" id="nav-logo-link" onclick="navigate('landing')">
+ <nav class="navbar">
+        <div class="logo-container" id="nav-logo-link" onclick="navigate('landing')" style="cursor: pointer;">
             <img src="logo.png" alt="Arc Academy Logo" class="nav-logo">
             <span class="logo-text">ARC // ACADEMY</span>
         </div>
 
-        <div class="wallet-wrapper">
-            <div class="checkin-wrapper" id="checkin-trigger" onclick="toggleCheckinModal(true)">
-                <span class="checkin-icon">📅</span>
+        <div class="wallet-wrapper" style="display: flex; align-items: center; gap: 15px;">
+            <button class="checkin-wrapper" id="checkin-trigger" onclick="toggleCheckinModal(true)" style="background: none; border: none; cursor: pointer; padding: 0; position: relative; display: flex; align-items: center; justify-content: center;">
+                <span class="checkin-icon" style="font-size: 1.2rem;">📅</span>
                 <div id="checkin-dot" class="notification-dot active"></div>
-            </div>
+            </button>
 
             <button class="connect-btn-nav" id="wallet-btn" onclick="handleWalletAction()">
                 <span id="btn-text">CONNECT WALLET</span>
@@ -34,7 +34,6 @@
             </div>
         </div>
     </nav>
-
     <section id="landing-screen" class="page-section active">
         <div class="hero-container" style="text-align: center;">
             <h1 class="hero-title" style="font-family: 'Orbitron'; font-size: 3rem; margin-bottom: 20px;">MASTER THE <br><span style="color: var(--arc-purple);">AGENTIC ECONOMY</span></h1>
