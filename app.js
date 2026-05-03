@@ -1,90 +1,88 @@
-// --- 1. GLOBAL STATE (With Link Tracking) ---
+// --- 1. GLOBAL STATE ---
 let state = {
     address: null, 
     isEmailUser: false,
-    profile: { username: '', email: '', x: '', discord: '' },
     unlockedLevels: 1,
     completedLevels: [],
     currentLevel: null,
     currentQIndex: 0,
     score: 0,
-    visitedDocs: new Set(), // THIS TRACKS IF THEY CLICKED THE LINK
+    visitedDocs: new Set(), // Tracks if "Read" was clicked
     streak: 0,
     lastCheckIn: null
 };
 
-// --- 2. QUIZ DATABASE WITH MANDATORY LINKS ---
+// --- 2. THE AUTHENTIC DATABASE ---
 const DB = {
-    'Basics': {
-        link: "https://arc.network/whitepaper", // Level 1 Link
+    'Quiz 1': {
+        name: "Arc House & Architects Program",
+        link: "https://community.arc.network/public/externals/introducing-arc-house-and-the-architects-program-2026-03-31",
         questions: [
-            { question: "What is the core of an Agentic Economy?", options: ["Manual Labor", "Autonomous Agents", "Central Banking"], correct: 1 }
+            { q: "What is Arc House primarily designed for?", options: ["Token trading", "Mining rewards", "Community collaboration and builder engagement", "NFT marketplace"], correct: "Community collaboration and builder engagement" },
+            { q: "How does someone become an Architect in the program?", options: ["By submitting an application form", "By buying tokens", "By contributing and earning points through activity", "By staking assets"], correct: "By contributing and earning points through activity" },
+            { q: "What is the main purpose of the Architects Program?", options: ["To distribute airdrops only", "To grow and support the ecosystem through contributors", "To control validators", "To reduce transaction fees"], correct: "To grow and support the ecosystem through contributors" },
+            { q: "What do participants earn through their contributions?", options: ["Only tokens", "Only NFTs", "Points, reputation, and opportunities within the ecosystem", "Mining rewards"], correct: "Points, reputation, and opportunities within the ecosystem" },
+            { q: "What kind of activities can increase your Architect level?", options: ["Only trading", "Posting content, attending events, and helping the community", "Just holding tokens", "Running nodes only"], correct: "Posting content, attending events, and helping the community" }
         ]
     },
-    'Economics': { 
-        link: "https://arc.network/economics", // Level 2 Link
-        questions: [{ question: "Define Tokenomics in AI?", options: ["GPU tax", "Incentive structures", "Cloud fees"], correct: 1 }] 
+    'Quiz 2': {
+        name: "USDC on Arc – Capital Efficiency",
+        link: "https://community.arc.network/public/externals/usdc-on-arc-a-capital-efficient-path-for-banks-2026-03-26",
+        questions: [
+            { q: "What is the main benefit of using USDC on Arc for banks?", options: ["Higher volatility", "Capital efficiency and faster settlement", "Increased transaction delays", "Manual reconciliation"], correct: "Capital efficiency and faster settlement" },
+            { q: "How does Arc improve capital efficiency for financial institutions?", options: ["By increasing fees", "By locking funds longer", "By enabling near-instant settlement and reducing idle capital", "By limiting transactions"], correct: "By enabling near-instant settlement and reducing idle capital" },
+            { q: "What role does USDC play in this system?", options: ["Governance token", "Mining reward", "Stable digital dollar for transactions and settlements", "NFT currency"], correct: "Stable digital dollar for transactions and settlements" },
+            { q: "Why is instant settlement important for banks?", options: ["It increases paperwork", "It reduces liquidity needs and operational risk", "It slows down transactions", "It removes compliance"], correct: "It reduces liquidity needs and operational risk" },
+            { q: "What makes Arc suitable for institutional adoption?", options: ["Meme coin ecosystem", "Unpredictable fees", "Stablecoin-native design with reliable infrastructure", "Anonymous transactions only"], correct: "Stablecoin-native design with reliable infrastructure" }
+        ]
     },
-    'Agents': { 
-        link: "https://arc.network/agents", // Level 3 Link
-        questions: [{ question: "What defines an Autonomous Agent?", options: ["Hardcoded scripts", "Self-directed goals", "User-input only"], correct: 1 }] 
+    'Quiz 3': {
+        name: "Agentic Economic Flow (ERC-8183)",
+        link: "https://community.arc.network/public/externals/running-an-agentic-economic-flow-on-arc-with-erc-8183-2026-04-07",
+        questions: [
+            { q: "What is the main purpose of ERC-8183?", options: ["To create NFTs for transactions", "To standardize job + payment workflows onchain", "To reduce gas fees", "To enable token staking"], correct: "To standardize job + payment workflows onchain" },
+            { q: "Which roles are the three main roles in the system?", options: ["Buyer, Seller, Miner", "User, Validator, Node", "Client, Provider, Evaluator", "Creator, Holder, Trader"], correct: "Client, Provider, Evaluator" },
+            { q: "What happens to funds when a job is created?", options: ["Sent directly to provider", "Burned temporarily", "Locked in escrow until completion", "Split among validators"], correct: "Locked in escrow until completion" },
+            { q: "What determines whether payment is released or refunded?", options: ["Gas fees", "Time alone", "Evaluator decision", "Network congestion"], correct: "Evaluator decision" },
+            { q: "What makes this system suitable for AI agents as well?", options: ["It uses NFTs", "It supports automated verification and execution", "It removes blockchain usage", "It requires manual approval only"], correct: "It supports automated verification and execution" }
+        ]
     },
-    'Protocols': { 
-        link: "https://arc.network/protocols", // Level 4 Link
-        questions: [{ question: "How do agents reach consensus?", options: ["Proof of Stake", "Proof of Inference", "Voting"], correct: 1 }] 
+    'Quiz 4': {
+        name: "Preparing Blockchains for Q-Day",
+        link: "https://community.arc.network/public/externals/preparing-blockchains-for-q-day-2026-04-02",
+        questions: [
+            { q: "What does “Q-Day” refer to?", options: ["The day Ethereum upgrades", "The moment quantum computers break current cryptography", "A new blockchain launch", "A global crypto regulation event"], correct: "The moment quantum computers break current cryptography" },
+            { q: "Why are current blockchains vulnerable to Q-Day?", options: ["High gas fees", "Weak smart contracts", "Use of cryptographic algorithms that quantum computers can break", "Lack of decentralization"], correct: "Use of cryptographic algorithms that quantum computers can break" },
+            { q: "Which type of cryptography is considered safer against quantum attacks?", options: ["Symmetric cryptography", "Hash functions only", "Post-quantum cryptography", "RSA encryption"], correct: "Post-quantum cryptography" },
+            { q: "What is a key challenge in upgrading blockchains for quantum resistance?", options: ["Lack of users", "Too many tokens", "Migrating existing wallets and keys securely", "Low transaction speed"], correct: "Migrating existing wallets and keys securely" },
+            { q: "What is Arc’s approach to Q-Day readiness?", options: ["Ignore quantum risks", "Replace all tokens", "Design systems that can adapt to new cryptographic standards", "Stop using encryption"], correct: "Design systems that can adapt to new cryptographic standards" }
+        ]
     },
-    'Economy': { 
-        link: "https://arc.network/economy-docs", // Level 5 Link
-        questions: [{ question: "What is the end-state of the Agentic Economy?", options: ["Hyper-productivity", "Human-only markets", "Stagnation"], correct: 0 }] 
+    'Quiz 5': {
+        name: "Circle AI Skills",
+        link: "https://community.arc.network/public/blogs/circle-ai-skills",
+        questions: [
+            { q: "What is the main focus of Circle AI Skills?", options: ["Teaching blockchain mining", "Developing AI-related skills for the future economy", "Creating NFTs", "Trading strategies"], correct: "Developing AI-related skills for the future economy" },
+            { q: "Why are AI skills important in this ecosystem?", options: ["For gaming only", "To support agent-based economic systems and automation", "To reduce blockchain usage", "To replace stablecoins"], correct: "To support agent-based economic systems and automation" },
+            { q: "What type of economy is being emphasized?", options: ["Manual labor economy", "Token speculation economy", "Agentic and AI-driven digital economy", "Traditional banking only"], correct: "Agentic and AI-driven digital economy" },
+            { q: "How can users benefit from learning AI skills?", options: ["Only through airdrops", "By building, contributing, and accessing new opportunities", "By avoiding blockchain", "By mining tokens"], correct: "By building, contributing, and accessing new opportunities" },
+            { q: "What is the long-term vision of combining AI and blockchain?", options: ["Replace the internet", "Create isolated systems", "Enable autonomous, scalable economic interactions", "Eliminate digital payments"], correct: "Enable autonomous, scalable economic interactions" }
+        ]
     }
 };
 
-// --- 3. TRACKING THE CLICK ---
-window.openDoc = function(levelKey, url) {
-    state.visitedDocs.add(levelKey);
-    window.open(url, '_blank');
-    renderLevels(); // Refresh UI to unlock the "ENTER" button
-};
-
-// --- 4. UPDATED DASHBOARD RENDER ---
-function renderLevels() {
-    const grid = document.getElementById('levels-grid');
-    if (!grid) return;
-    grid.innerHTML = '';
-    
-    const levelNames = ['Basics', 'Economics', 'Agents', 'Protocols', 'Economy'];
-
-    levelNames.forEach((name, index) => {
-        const levelNum = index + 1;
-        const isUnlocked = levelNum <= state.unlockedLevels;
-        const hasReadDocs = state.visitedDocs.has(name);
-        const docLink = DB[name].link;
-
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.style.cssText = `opacity: ${isUnlocked ? '1' : '0.5'}; border: 1px solid ${isUnlocked ? 'var(--arc-purple)' : '#333'}; padding: 25px; text-align: center; margin-bottom: 20px; background: rgba(0,0,0,0.3);`;
-        
-        card.innerHTML = `
-            <h3 style="font-family: 'Orbitron'; font-size: 0.8rem; margin-bottom: 15px;">MODULE_0${levelNum}: ${name.toUpperCase()}</h3>
-            
-            <button class="launch-btn" 
-                    onclick="openDoc('${name}', '${docLink}')"
-                    style="background: none; border: 1px solid var(--arc-purple); color: var(--arc-purple); margin-bottom: 10px; width: 100%; font-size: 0.7rem; ${!isUnlocked ? 'display:none;' : ''}">
-                ${hasReadDocs ? '✅ INTEL_ACCESSED' : '📂 ACCESS_INTEL_FIRST'}
-            </button>
-
-            <button class="launch-btn" 
-                    ${(!isUnlocked || !hasReadDocs) ? 'disabled' : ''} 
-                    onclick="startQuiz('${name}')" 
-                    style="width: 100%; font-size: 0.7rem; opacity: ${(!isUnlocked || !hasReadDocs) ? '0.3' : '1'}; cursor: ${(!isUnlocked || !hasReadDocs) ? 'not-allowed' : 'pointer'};">
-                ${isUnlocked ? (hasReadDocs ? 'ENTER_EXAM' : 'LOCKED_UNTIL_READ') : 'LEVEL_LOCKED'}
-            </button>
-        `;
-        grid.appendChild(card);
-    });
+// --- 3. UTILS: SHUFFLE ALGORITHM ---
+function shuffleArray(array) {
+    let currentIndex = array.length, randomIndex;
+    while (currentIndex != 0) {
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+        [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+    }
+    return array;
 }
 
-// --- 5. CORE NAVIGATION & QUIZ ENGINE ---
+// --- 4. NAVIGATION & DASHBOARD ---
 window.navigate = function(screenId) {
     document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
     const target = document.getElementById(`${screenId}-screen`);
@@ -92,6 +90,44 @@ window.navigate = function(screenId) {
     if (screenId === 'dashboard') renderLevels();
 };
 
+window.openDoc = function(levelKey, url) {
+    state.visitedDocs.add(levelKey);
+    window.open(url, '_blank');
+    renderLevels(); 
+};
+
+function renderLevels() {
+    const grid = document.getElementById('levels-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    
+    const keys = Object.keys(DB);
+    keys.forEach((key, index) => {
+        const levelNum = index + 1;
+        const isUnlocked = levelNum <= state.unlockedLevels;
+        const hasRead = state.visitedDocs.has(key);
+        const data = DB[key];
+
+        grid.innerHTML += `
+            <div class="card" style="opacity: ${isUnlocked ? '1' : '0.4'}; border: 1px solid ${isUnlocked ? 'var(--arc-purple)' : '#333'}; padding: 25px; margin-bottom: 20px; background: rgba(0,0,0,0.2);">
+                <h3 style="font-family: 'Orbitron'; font-size: 0.85rem;">MODULE_0${levelNum}</h3>
+                <p style="font-size: 0.7rem; color: #888; margin-bottom: 15px;">${data.name}</p>
+                
+                <div style="display: flex; gap: 10px;">
+                    <button class="launch-btn" onclick="openDoc('${key}', '${data.link}')" 
+                            style="flex: 1; background: none; border: 1px solid var(--arc-purple); color: var(--arc-purple); ${!isUnlocked ? 'display:none;' : ''}">
+                        ${hasRead ? '✅ Read' : 'Read'}
+                    </button>
+                    <button class="launch-btn" ${(!isUnlocked || !hasRead) ? 'disabled' : ''} onclick="startQuiz('${key}')" 
+                            style="flex: 1; opacity: ${(!isUnlocked || !hasRead) ? '0.3' : '1'};">
+                        Start
+                    </button>
+                </div>
+            </div>`;
+    });
+}
+
+// --- 5. QUIZ ENGINE (With Shuffle) ---
 window.startQuiz = function(levelKey) {
     state.currentLevel = levelKey;
     state.currentQIndex = 0;
@@ -100,4 +136,83 @@ window.startQuiz = function(levelKey) {
     showQuestion();
 };
 
-// ... keep existing showQuestion, handleAnswer, and auth functions from previous block ...
+function showQuestion() {
+    const quizData = DB[state.currentLevel];
+    const qData = quizData.questions[state.currentQIndex];
+    
+    document.getElementById('quiz-level-name').innerText = state.currentLevel.toUpperCase();
+    document.getElementById('q-text').innerText = qData.q;
+    
+    // SHUFFLE OPTIONS HERE
+    const shuffledOptions = shuffleArray([...qData.options]);
+    
+    const optionsList = document.getElementById('options-list');
+    optionsList.innerHTML = '';
+    
+    shuffledOptions.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'launch-btn';
+        btn.style.cssText = "width: 100%; margin-bottom: 10px; text-align: left; background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1);";
+        btn.innerText = opt;
+        btn.onclick = () => handleAnswer(opt, qData.correct);
+        optionsList.appendChild(btn);
+    });
+
+    document.getElementById('success-box').style.display = 'none';
+    document.getElementById('ngmi-box').style.display = 'none';
+    document.getElementById('next-btn').style.display = 'none';
+}
+
+window.handleAnswer = function(selectedOption, correctOption) {
+    const isCorrect = selectedOption === correctOption;
+    if (isCorrect) {
+        state.score++;
+        document.getElementById('success-box').style.display = 'block';
+    } else {
+        document.getElementById('ngmi-box').style.display = 'block';
+    }
+    document.getElementById('next-btn').style.display = 'block';
+};
+
+window.handleNext = function() {
+    state.currentQIndex++;
+    if (state.currentQIndex < DB[state.currentLevel].questions.length) {
+        showQuestion();
+    } else {
+        finishQuiz();
+    }
+};
+
+function finishQuiz() {
+    const total = DB[state.currentLevel].questions.length;
+    if (state.score === total) {
+        if (state.unlockedLevels === (Object.keys(DB).indexOf(state.currentLevel) + 1)) {
+            state.unlockedLevels++;
+        }
+        showToast("MASTERY_ACHIEVED: LEVEL_UNLOCKED");
+    } else {
+        showToast("SCORE_INSUFFICIENT");
+    }
+    navigate('dashboard');
+}
+
+// --- 6. AUTH & UTILS ---
+window.handleWalletAction = function() {
+    if (!state.address) document.getElementById('login-modal').style.display = 'flex';
+    else document.getElementById('profile-dropdown').classList.toggle('show');
+};
+
+window.verifyOTP = function() {
+    state.address = "ARCHITECT_0x1";
+    document.getElementById('btn-text').innerText = "0x1...ARCH";
+    document.getElementById('login-modal').style.display = 'none';
+    navigate('dashboard');
+};
+
+function showToast(m) {
+    const t = document.createElement('div');
+    t.style.cssText = "position:fixed; bottom:20px; right:20px; background:var(--arc-purple); color:white; padding:12px; border-radius:4px; font-family:'Orbitron'; z-index:9999; font-size:0.7rem;";
+    t.innerText = m;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 3000);
+}
