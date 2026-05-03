@@ -7,7 +7,7 @@ let state = {
     currentLevel: null,
     currentQIndex: 0,
     score: 0,
-    visitedDocs: new Set() // Tracks which level docs have been opened
+    visitedDocs: new Set() 
 };
 
 // --- 2. ROUTING SYSTEM ---
@@ -26,13 +26,16 @@ window.addEventListener('hashchange', () => {
 });
 
 // --- 3. HARDENED WALLET LOGIC (PC FIX) ---
-async function handleWalletAction() {
+// Attaching to window ensures the HTML button always "sees" the function on PC
+window.handleWalletAction = async function() {
+    console.log("Button Triggered"); // View this in F12 Console
     if (state.address) {
-        document.getElementById('profile-dropdown').classList.toggle('active');
+        const dropdown = document.getElementById('profile-dropdown');
+        if (dropdown) dropdown.classList.toggle('active');
     } else {
         await connectAndSign();
     }
-}
+};
 
 async function connectAndSign() {
     if (!window.ethereum) return alert("MetaMask not found. Please install the extension.");
@@ -86,7 +89,7 @@ function renderDashboard() {
         const lvlNum = index + 1;
         const isLocked = lvlNum > state.unlockedLevels;
         const isComp = state.completedLevels.includes(key);
-        const hasReadDocs = state.visitedDocs.has(key); // Check if docs were clicked
+        const hasReadDocs = state.visitedDocs.has(key);
 
         const card = document.createElement('div');
         card.className = `level-card ${isLocked ? 'locked' : ''}`;
@@ -114,7 +117,6 @@ function renderDashboard() {
 
 function unlockQuiz(key) {
     state.visitedDocs.add(key);
-    // Brief delay to allow the tab to open before re-rendering the button
     setTimeout(renderDashboard, 500);
 }
 
@@ -126,8 +128,12 @@ function loadQuestion() {
     const list = document.getElementById('options-list');
     list.innerHTML = '';
 
-    // --- RANDOMIZE OPTIONS ---
-    let shuffled = [...q.options].sort(() => Math.random() - 0.5);
+    // --- FISHER-YATES SHUFFLE (Better Randomizing) ---
+    let shuffled = [...q.options];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
 
     shuffled.forEach(opt => {
         const b = document.createElement('button');
@@ -152,6 +158,7 @@ function loadQuestion() {
 
 // --- 5. INITIALIZATION & STORAGE ---
 function saveProfile() {
+    if (!state.address) return;
     localStorage.setItem(`arc_user_${state.address}`, JSON.stringify(state));
     alert("Progress Saved.");
 }
@@ -160,15 +167,17 @@ function loadFromStorage() {
     const saved = localStorage.getItem(`arc_user_${state.address}`);
     if (saved) {
         const data = JSON.parse(saved);
-        state.profile = data.profile;
-        state.completedLevels = data.completedLevels;
-        state.unlockedLevels = data.unlockedLevels;
+        state.profile = data.profile || state.profile;
+        state.completedLevels = data.completedLevels || [];
+        state.unlockedLevels = data.unlockedLevels || 1;
     }
 }
 
 function updateUI() {
     const btnText = document.getElementById('btn-text');
-    if (state.address) btnText.innerText = state.address.substring(0,6) + "..." + state.address.substring(38);
+    if (state.address && btnText) {
+        btnText.innerText = state.address.substring(0,6) + "..." + state.address.substring(38);
+    }
 }
 
 window.addEventListener('load', () => {
@@ -176,7 +185,15 @@ window.addEventListener('load', () => {
     else window.dispatchEvent(new HashChangeEvent('hashchange'));
 });
 
-// Helpers for other functions
+// Helper functions
 function startQuiz(key) { state.currentLevel = key; state.currentQIndex = 0; state.score = 0; navigate('quiz'); loadQuestion(); }
 function handleNext() { state.currentQIndex++; if (state.currentQIndex < DB[state.currentLevel].questions.length) loadQuestion(); else showResults(); }
 function disconnect() { localStorage.clear(); location.reload(); }
+
+function showResults() {
+    navigate('results');
+    const total = DB[state.currentLevel].questions.length;
+    const pct = (state.score / total) * 100;
+    document.getElementById('final-score-num').innerText = Math.round(pct);
+    
+    const mainBtn = document.getElementById('
