@@ -10,7 +10,7 @@ let state = {
     visitedDocs: new Set()
 };
 
-// --- 2. ROUTING SYSTEM (Multi-Page Logic) ---
+// --- 2. ROUTING SYSTEM ---
 function navigate(pageId) {
     window.location.hash = pageId;
 }
@@ -27,42 +27,54 @@ window.addEventListener('hashchange', () => {
     const activeSection = document.getElementById(hash + '-screen');
     if (activeSection) {
         activeSection.classList.add('active');
-        
-        // Auto-render dashboard if navigating there
         if (hash === 'dashboard') renderDashboard();
     }
 });
 
-// --- 3. WALLET & SIGNATURE AUTH ---
+// --- 3. UPDATED AUTH LOGIC (PC & MOBILE) ---
 async function handleWalletAction() {
-    if (!state.address) {
-        await connectAndSign();
-    } else {
+    if (state.address) {
         const dropdown = document.getElementById('profile-dropdown');
-        dropdown.classList.toggle('active');
+        if (dropdown) dropdown.classList.toggle('active');
+        return;
     }
+    await connectAndSign();
 }
 
 async function connectAndSign() {
-    if (!window.ethereum) return alert("Please install MetaMask!");
+    if (typeof window.ethereum === 'undefined') {
+        alert("MetaMask not detected! If you are on PC, please install the MetaMask extension.");
+        return;
+    }
 
     try {
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        const accounts = await window.ethereum.request({ 
+            method: 'eth_requestAccounts' 
+        });
+        
+        if (!accounts || accounts.length === 0) return;
         const userAddr = accounts[0];
 
-        // The Binding Signature (Bind profile to wallet)
-        const msg = `ARC_ACADEMY_AUTH: ${userAddr}\n\nSign this to unlock your Architect Profile and save your progress.`;
-        await window.ethereum.request({
+        const msg = `ARC_ACADEMY_AUTH: ${userAddr.toLowerCase()}\n\nSign this to unlock your Architect Profile.`;
+        
+        const signature = await window.ethereum.request({
             method: 'personal_sign',
             params: [msg, userAddr]
         });
 
-        state.address = userAddr;
-        loadFromStorage();
-        updateUI();
-        navigate('dashboard');
-    } catch (e) {
-        console.error("Auth failed", e);
+        if (signature) {
+            state.address = userAddr;
+            loadFromStorage(); 
+            updateUI();
+            navigate('dashboard');
+        }
+    } catch (error) {
+        console.error("Connection failed:", error);
+        if (error.code === 4001) {
+            alert("Connection rejected. You must sign to continue.");
+        } else {
+            alert("Wallet error. Please check if MetaMask has a pending request.");
+        }
     }
 }
 
@@ -73,10 +85,10 @@ function disconnect() {
     state.unlockedLevels = 1;
     updateUI();
     navigate('landing');
-    location.reload(); // Hard reset
+    location.reload(); 
 }
 
-// --- 4. PROFILE PERSISTENCE ---
+// --- 4. PROFILE PERSISTENCE (LocalStorage) ---
 function saveProfile() {
     if (!state.address) return alert("Connect wallet first!");
     
@@ -89,7 +101,8 @@ function saveProfile() {
 
     localStorage.setItem(`arc_user_${state.address}`, JSON.stringify(state));
     alert("Identity Synced!");
-    document.getElementById('profile-dropdown').classList.remove('active');
+    const dropdown = document.getElementById('profile-dropdown');
+    if (dropdown) dropdown.classList.remove('active');
 }
 
 function loadFromStorage() {
@@ -110,25 +123,34 @@ function loadFromStorage() {
 
 function updateUI() {
     const btnText = document.getElementById('btn-text');
-    if (state.address) {
+    if (state.address && btnText) {
         btnText.innerText = state.address.substring(0, 6) + "..." + state.address.substring(38);
-    } else {
+    } else if (btnText) {
         btnText.innerText = "CONNECT WALLET";
     }
 }
 
-// --- 5. QUIZ DATA & ENGINE ---
+// --- 5. QUIZ ENGINE ---
 const DB = {
     level1: {
         title: "Arc House & Architects",
         subtitle: "Community & Contribution",
         docLink: "https://community.arc.network/public/externals/introducing-arc-house-and-the-architects-program-2026-03-31",
         questions: [
-            { question: "What is Arc House primarily designed for?", options: ["Token trading", "Mining rewards", "Community collaboration and builder engagement", "NFT marketplace"], correct_answer: "Community collaboration and builder engagement", ngmi: "Arc House is about the builders. Focus on the community." },
-            { question: "How does someone become an Architect?", options: ["By buying tokens", "By contributing and earning points", "By application form only", "By staking assets"], correct_answer: "By contributing and earning points", ngmi: "Status is earned through contribution, not just capital." }
+            { 
+                question: "What is Arc House primarily designed for?", 
+                options: ["Token trading", "Mining rewards", "Community collaboration and builder engagement", "NFT marketplace"], 
+                correct_answer: "Community collaboration and builder engagement", 
+                ngmi: "Arc House is about the builders. Focus on the community." 
+            },
+            { 
+                question: "How does someone become an Architect?", 
+                options: ["By buying tokens", "By contributing and earning points", "By application form only", "By staking assets"], 
+                correct_answer: "By contributing and earning points", 
+                ngmi: "Status is earned through contribution, not just capital." 
+            }
         ]
     }
-    // Add other levels here...
 };
 
 function renderDashboard() {
@@ -160,8 +182,10 @@ function renderDashboard() {
     });
 
     const progress = (state.completedLevels.length / 5) * 100;
-    document.getElementById('progress-fill').style.width = progress + "%";
-    document.getElementById('overall-percent').innerText = Math.round(progress) + "%";
+    const progressFill = document.getElementById('progress-fill');
+    const progressText = document.getElementById('overall-percent');
+    if (progressFill) progressFill.style.width = progress + "%";
+    if (progressText) progressText.innerText = Math.round(progress) + "%";
 }
 
 function startQuiz(key) {
@@ -179,7 +203,7 @@ function loadQuestion() {
     const list = document.getElementById('options-list');
     list.innerHTML = '';
 
-    // SHUFFLE LOGIC (Fisher-Yates)
+    // SHUFFLE LOGIC
     const shuffledOptions = [...q.options].sort(() => Math.random() - 0.5);
 
     shuffledOptions.forEach(opt => {
@@ -227,7 +251,7 @@ function showResults() {
         if (!state.completedLevels.includes(state.currentLevel)) {
             state.completedLevels.push(state.currentLevel);
             state.unlockedLevels = Math.min(5, state.completedLevels.length + 1);
-            saveProfile(); // Save progress to LocalStorage
+            saveProfile(); 
         }
         mainBtn.onclick = () => navigate('dashboard');
     } else {
@@ -244,7 +268,6 @@ window.addEventListener('load', () => {
     else window.dispatchEvent(new HashChangeEvent('hashchange'));
 });
 
-// Dropdown outside-click closer
 window.onclick = function(event) {
     if (!event.target.matches('.connect-btn-nav') && !event.target.matches('#btn-text')) {
         const dropdown = document.getElementById('profile-dropdown');
