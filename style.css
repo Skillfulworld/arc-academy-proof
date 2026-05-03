@@ -1,14 +1,90 @@
-/* --- NEW: CHECK-IN ICON & NOTIFICATION --- */
+/* --- 1. CORE VARIABLES --- */
+:root {
+    --arc-dark: #050d16;
+    --arc-blue: #0a1f33;
+    --arc-purple: #8b5cf6;
+    --arc-accent: #3a82c4;
+    --white: #ffffff;
+    --glass: rgba(255, 255, 255, 0.03);
+    --border: rgba(255, 255, 255, 0.1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    background: radial-gradient(circle at top right, #1a1033, var(--arc-dark));
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* --- 2. LAYOUT & NAVIGATION --- */
+.navbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 70px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 5%;
+    background: rgba(5, 13, 22, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    z-index: 1000;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    gap: 12px;
+}
+
+/* THE CRITICAL FIX: Constrains the logo from taking over the screen */
+.nav-logo {
+    height: 35px; 
+    width: auto;
+    object-fit: contain;
+}
+
+.logo-text {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    letter-spacing: 2px;
+    font-size: 1rem;
+}
+
+/* --- 3. PAGE ROUTING --- */
+.page-section {
+    display: none; 
+    min-height: 100vh;
+    padding: 100px 20px 60px; /* Offset for the fixed navbar */
+    width: 100%;
+}
+
+.page-section.active {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: fadeIn 0.4s ease-out;
+}
+
+/* --- 4. CHECK-IN UI & NOTIFICATION --- */
+.wallet-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
 .checkin-wrapper {
     position: relative;
-    margin-right: 20px;
     cursor: pointer;
     transition: transform 0.2s;
 }
 
-.checkin-wrapper:hover {
-    transform: scale(1.1);
-}
+.checkin-wrapper:hover { transform: scale(1.1); }
 
 .checkin-icon {
     font-size: 1.3rem;
@@ -21,10 +97,10 @@
     right: -2px;
     width: 10px;
     height: 10px;
-    background: #ff4d4d; /* Bright red for attention */
+    background: #ff4d4d;
     border-radius: 50%;
     border: 2px solid var(--arc-dark);
-    display: none; /* Hidden by default, toggled by JS */
+    display: none;
     box-shadow: 0 0 8px #ff4d4d;
 }
 
@@ -33,16 +109,10 @@
     animation: pulseRed 2s infinite;
 }
 
-@keyframes pulseRed {
-    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.7); }
-    70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(255, 77, 77, 0); }
-    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 77, 77, 0); }
-}
-
-/* --- NEW: DAILY CHECK-IN MODAL & GRID --- */
+/* --- 5. CHECK-IN GRID --- */
 .checkin-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr); /* 4 on top, 3 on bottom */
+    grid-template-columns: repeat(4, 1fr);
     gap: 12px;
     margin: 25px 0;
 }
@@ -53,89 +123,61 @@
     padding: 15px 5px;
     border-radius: 8px;
     text-align: center;
-    transition: 0.3s;
 }
 
 .day-box.completed {
     border-color: var(--arc-purple);
     background: rgba(139, 92, 246, 0.15);
     color: var(--arc-purple);
-    box-shadow: inset 0 0 10px rgba(139, 92, 246, 0.1);
 }
 
 .day-box.current {
     border-color: var(--white);
-    background: rgba(255, 255, 255, 0.08);
     animation: borderGlow 2s infinite alternate;
 }
 
-@keyframes borderGlow {
-    from { box-shadow: 0 0 5px rgba(255,255,255,0.1); }
-    to { box-shadow: 0 0 15px rgba(255,255,255,0.4); }
-}
-
-/* --- NEW: OTP & TRANSACTION UI --- */
+/* --- 6. OTP & MODALS --- */
 #otp-input {
     letter-spacing: 12px !important;
     font-weight: 900;
     text-indent: 12px;
     border: 2px solid var(--arc-purple) !important;
     background: rgba(139, 92, 246, 0.05) !important;
-}
-
-/* Forcing the check-in button to look like a high-priority action */
-#checkin-btn:not(:disabled) {
-    background: linear-gradient(135deg, var(--arc-purple), var(--arc-accent));
     color: white;
+    padding: 10px;
+    text-align: center;
 }
 
-#checkin-btn:disabled {
-    opacity: 0.5;
-    cursor: wait;
-    background: var(--glass);
-    color: rgba(255,255,255,0.3);
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 13, 22, 0.95);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
 }
 
-/* Responsive fix for check-in grid on mobile */
-@media (max-width: 480px) {
-    .checkin-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
-/* --- NEW: CHECK-IN ICON & NOTIFICATION --- */
-.checkin-wrapper {
-    position: relative;
-    margin-right: 20px;
+/* --- 7. BUTTONS --- */
+.launch-btn {
+    background: var(--white);
+    color: var(--arc-dark);
+    border: none;
+    padding: 0.8rem 1.5rem;
+    font-family: 'Orbitron';
+    font-weight: 900;
     cursor: pointer;
-    transition: transform 0.2s;
+    border-radius: 4px;
 }
 
-.checkin-wrapper:hover {
-    transform: scale(1.1);
+#checkin-btn:not(:disabled) {
+    background: linear-gradient(135deg, var(--arc-purple), var(--arc-accent));
+    color: white;
 }
 
-.checkin-icon {
-    font-size: 1.3rem;
-    filter: drop-shadow(0 0 5px var(--arc-purple));
-}
-
-.notification-dot {
-    position: absolute;
-    top: -2px;
-    right: -2px;
-    width: 10px;
-    height: 10px;
-    background: #ff4d4d; /* Bright red for attention */
-    border-radius: 50%;
-    border: 2px solid var(--arc-dark);
-    display: none; /* Hidden by default, toggled by JS */
-    box-shadow: 0 0 8px #ff4d4d;
-}
-
-.notification-dot.active {
-    display: block;
-    animation: pulseRed 2s infinite;
-}
+/* --- 8. ANIMATIONS --- */
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
 @keyframes pulseRed {
     0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.7); }
@@ -143,66 +185,11 @@
     100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 77, 77, 0); }
 }
 
-/* --- NEW: DAILY CHECK-IN MODAL & GRID --- */
-.checkin-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr); /* 4 on top, 3 on bottom */
-    gap: 12px;
-    margin: 25px 0;
-}
-
-.day-box {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--border);
-    padding: 15px 5px;
-    border-radius: 8px;
-    text-align: center;
-    transition: 0.3s;
-}
-
-.day-box.completed {
-    border-color: var(--arc-purple);
-    background: rgba(139, 92, 246, 0.15);
-    color: var(--arc-purple);
-    box-shadow: inset 0 0 10px rgba(139, 92, 246, 0.1);
-}
-
-.day-box.current {
-    border-color: var(--white);
-    background: rgba(255, 255, 255, 0.08);
-    animation: borderGlow 2s infinite alternate;
-}
-
 @keyframes borderGlow {
     from { box-shadow: 0 0 5px rgba(255,255,255,0.1); }
     to { box-shadow: 0 0 15px rgba(255,255,255,0.4); }
 }
 
-/* --- NEW: OTP & TRANSACTION UI --- */
-#otp-input {
-    letter-spacing: 12px !important;
-    font-weight: 900;
-    text-indent: 12px;
-    border: 2px solid var(--arc-purple) !important;
-    background: rgba(139, 92, 246, 0.05) !important;
-}
-
-/* Forcing the check-in button to look like a high-priority action */
-#checkin-btn:not(:disabled) {
-    background: linear-gradient(135deg, var(--arc-purple), var(--arc-accent));
-    color: white;
-}
-
-#checkin-btn:disabled {
-    opacity: 0.5;
-    cursor: wait;
-    background: var(--glass);
-    color: rgba(255,255,255,0.3);
-}
-
-/* Responsive fix for check-in grid on mobile */
 @media (max-width: 480px) {
-    .checkin-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
+    .checkin-grid { grid-template-columns: repeat(3, 1fr); }
 }
