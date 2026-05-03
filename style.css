@@ -1,35 +1,44 @@
+/* --- ARC ACADEMY MASTER STYLES --- */
 :root {
     --arc-dark: #050d16;
     --arc-blue: #0a1f33;
+    --arc-purple: #8b5cf6; /* Matches the arc in your logo */
     --arc-accent: #3a82c4;
     --white: #ffffff;
     --glass: rgba(255, 255, 255, 0.03);
     --border: rgba(255, 255, 255, 0.1);
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+* { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+}
 
 body {
-    background: linear-gradient(135deg, var(--arc-dark) 0%, var(--arc-blue) 100%);
+    background: radial-gradient(circle at top right, #1a1033, var(--arc-dark));
     color: var(--white);
     font-family: 'Inter', sans-serif;
     min-height: 100vh;
     overflow-x: hidden;
 }
 
-/* Screens & Centering */
-.screen {
-    display: none;
+/* --- PAGE ROUTING LOGIC --- */
+.page-section {
+    display: none; /* Hidden by default */
     min-height: 100vh;
-    padding: 2rem;
+    padding: 120px 20px 60px;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
     width: 100%;
 }
-.screen.active { display: flex; animation: fadeIn 0.5s ease-out; }
 
-/* Navbar */
+.page-section.active {
+    display: flex; /* Shown when active */
+    animation: fadeIn 0.4s ease-out;
+}
+
+/* --- NAVIGATION & LOGO --- */
 .navbar {
     position: fixed;
     top: 0;
@@ -37,104 +46,222 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 2rem 5%;
-    z-index: 100;
+    padding: 1.5rem 5%;
+    background: rgba(5, 13, 22, 0.8);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    z-index: 1000;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.nav-logo {
+    height: 35px;
+    margin-right: 12px;
 }
 
 .logo-text {
     font-family: 'Orbitron', sans-serif;
     font-weight: 900;
-    letter-spacing: 3px;
+    letter-spacing: 2px;
     font-size: 1.1rem;
+}
+
+/* --- WALLET & DROPDOWN --- */
+.wallet-wrapper {
+    position: relative;
 }
 
 .connect-btn-nav {
     background: transparent;
     color: var(--white);
-    border: 1px solid var(--white);
-    padding: 0.7rem 1.5rem;
+    border: 1px solid var(--arc-purple);
+    padding: 0.6rem 1.2rem;
     border-radius: 4px;
     font-family: 'Orbitron';
     font-size: 0.75rem;
     cursor: pointer;
-    transition: all 0.3s;
-}
-
-.connect-btn-nav:hover { background: var(--white); color: var(--arc-dark); }
-
-/* Hero Section */
-.hero-container { text-align: center; max-width: 900px; }
-.hero-title {
-    font-family: 'Orbitron', sans-serif;
-    font-size: clamp(2.5rem, 8vw, 5rem);
-    line-height: 1.1;
-    margin-bottom: 2.5rem;
-}
-.hero-title span { color: var(--arc-accent); }
-
-.launch-btn {
-    background: var(--white);
-    color: var(--arc-dark);
-    border: none;
-    padding: 1.2rem 3.5rem;
-    font-family: 'Orbitron';
-    font-weight: 900;
-    letter-spacing: 2px;
-    cursor: pointer;
-    border-radius: 4px;
     transition: 0.3s;
 }
-.launch-btn:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(58, 130, 196, 0.3); }
 
-/* Dashboard Cards */
+.connect-btn-nav:hover {
+    background: var(--arc-purple);
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 120%;
+    background: var(--arc-blue);
+    border: 1px solid var(--border);
+    min-width: 220px;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    overflow: hidden;
+}
+
+.dropdown-content.active { display: block; }
+
+.dropdown-header {
+    padding: 12px 20px;
+    font-size: 0.65rem;
+    color: var(--arc-purple);
+    font-family: 'Orbitron';
+    border-bottom: 1px solid var(--border);
+}
+
+.dropdown-content a {
+    display: block;
+    padding: 12px 20px;
+    color: var(--white);
+    text-decoration: none;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.dropdown-content a:hover {
+    background: rgba(255,255,255,0.05);
+    padding-left: 25px;
+}
+
+/* --- HERO SECTION --- */
+.hero-container {
+    text-align: center;
+    max-width: 800px;
+    margin-top: 5vh;
+}
+
+.hero-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(2.5rem, 8vw, 4.5rem);
+    line-height: 1;
+    margin-bottom: 1.5rem;
+}
+
+.hero-title span {
+    background: linear-gradient(to right, var(--arc-purple), var(--arc-accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero-subtitle {
+    font-size: 1.1rem;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 3rem;
+}
+
+/* --- CARDS & FORMS --- */
 .card {
     background: var(--glass);
     border: 1px solid var(--border);
-    backdrop-filter: blur(10px);
-    padding: 3rem;
-    border-radius: 12px;
+    backdrop-filter: blur(12px);
+    padding: 2.5rem;
+    border-radius: 16px;
     width: 100%;
-    max-width: 900px;
+    max-width: 850px;
 }
 
-.levels-grid {
+.profile-form {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 1.5rem;
     margin-top: 2rem;
 }
 
-.level-card {
-    background: rgba(255,255,255,0.02);
-    border: 1px solid var(--border);
-    padding: 1.5rem;
-    border-radius: 8px;
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
-.level-card.locked { opacity: 0.4; filter: grayscale(1); }
 
-.status { color: #38a169; font-weight: bold; font-size: 0.8rem; }
+.input-group label {
+    font-family: 'Orbitron';
+    font-size: 0.7rem;
+    color: var(--arc-purple);
+}
 
-/* Quiz Styles */
+input {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+    padding: 12px;
+    color: white;
+    border-radius: 4px;
+    outline: none;
+}
+
+input:focus {
+    border-color: var(--arc-purple);
+}
+
+.social-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+/* --- BUTTONS --- */
+.launch-btn {
+    background: var(--white);
+    color: var(--arc-dark);
+    border: none;
+    padding: 1rem 2.5rem;
+    font-family: 'Orbitron';
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: 0.3s;
+}
+
+.launch-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+}
+
+.back-link {
+    background: transparent;
+    border: none;
+    color: rgba(255,255,255,0.4);
+    margin-top: 2rem;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+
+.back-link:hover { color: white; }
+
+/* --- QUIZ SPECIFIC --- */
 .option-btn {
-    display: block;
     width: 100%;
     padding: 1rem;
     margin: 10px 0;
-    background: transparent;
+    background: rgba(255,255,255,0.02);
     border: 1px solid var(--border);
     color: white;
     text-align: left;
     cursor: pointer;
-    border-radius: 4px;
+    border-radius: 6px;
+    transition: 0.2s;
 }
-.option-btn:hover:not(:disabled) { background: rgba(255,255,255,0.05); border-color: var(--arc-accent); }
 
-.feedback { padding: 1rem; margin-top: 1rem; border-radius: 4px; display: none; font-size: 0.9rem; }
-.success { background: rgba(56, 161, 105, 0.2); color: #38a169; border: 1px solid #38a169; }
-.error { background: rgba(229, 62, 62, 0.2); color: #e53e3e; border: 1px solid #e53e3e; }
+.option-btn:hover:not(:disabled) {
+    background: rgba(139, 92, 246, 0.1);
+    border-color: var(--arc-purple);
+}
 
-/* Footer */
-.footer-social { margin-top: 4rem; opacity: 0.7; }
-.social-link { text-decoration: none; color: white; font-weight: bold; margin-left: 10px; }
+/* --- ANIMATIONS --- */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 768px) {
+    .social-grid { grid-template-columns: 1fr; }
+    .navbar { padding: 1rem 5%; }
+}
