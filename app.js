@@ -1,6 +1,6 @@
 // --- 1. GLOBAL STATE ---
 let state = {
-    address: null, // Stores Wallet Address OR Email
+    address: null, 
     isEmailUser: false,
     profile: { username: '', email: '', x: '', discord: '' },
     unlockedLevels: 1,
@@ -11,11 +11,23 @@ let state = {
     visitedDocs: new Set() 
 };
 
+// --- NEW: NOTIFICATION SYSTEM ---
+function showToast(message) {
+    const toast = document.createElement('div');
+    toast.className = 'toast-notification';
+    toast.innerText = message;
+    document.body.appendChild(toast);
+
+    // Remove toast after animation
+    setTimeout(() => {
+        toast.classList.add('fade-out');
+        setTimeout(() => toast.remove(), 500);
+    }, 3000);
+}
+
 // --- 2. ROUTING & DROPDOWN FIX ---
 window.navigate = function(pageId) {
     window.location.hash = pageId;
-    
-    // FIX NO 4: Auto-close dropdown on navigation
     const dropdown = document.getElementById('profile-dropdown');
     if (dropdown) dropdown.classList.remove('active');
 };
@@ -30,7 +42,7 @@ window.addEventListener('hashchange', () => {
     }
 });
 
-// --- 3. HYBRID LOGIN LOGIC (WALLET + EMAIL) ---
+// --- 3. HYBRID LOGIN LOGIC ---
 window.toggleLoginModal = function(show) {
     const modal = document.getElementById('login-modal');
     if (modal) modal.style.display = show ? 'flex' : 'none';
@@ -72,7 +84,20 @@ function finalizeLogin() {
     navigate('dashboard');
 }
 
-// --- 4. QUIZ ENGINE & ALL 5 LEVELS ---
+// --- 4. PROFILE LOGIC ---
+// NEW: Handles the "SAVE CHANGES" button click
+window.saveProfileChanges = function() {
+    // Collect data from inputs
+    state.profile.username = document.getElementById('display-name')?.value || '';
+    state.profile.email = document.getElementById('email-contact')?.value || '';
+    state.profile.x = document.getElementById('x-handle')?.value || '';
+    state.profile.discord = document.getElementById('discord-handle')?.value || '';
+
+    saveProfile();
+    showToast("CHANGES_SAVED_SUCCESSFULLY");
+};
+
+// --- 5. QUIZ ENGINE & LEVELS ---
 const DB = {
     level1: {
         title: "Arc House & Architects",
@@ -141,7 +166,6 @@ function renderDashboard() {
         const card = document.createElement('div');
         card.className = `level-card ${isLocked ? 'locked' : ''}`;
         
-        // FIX NO 2: Strict start requirements
         const canStart = hasAccount && hasReadDocs && !isLocked;
 
         card.innerHTML = `
@@ -165,7 +189,6 @@ function renderDashboard() {
     });
 }
 
-// --- 5. QUIZ ENGINE ---
 function unlockQuiz(key) {
     state.visitedDocs.add(key);
     setTimeout(renderDashboard, 500);
@@ -185,7 +208,6 @@ function loadQuestion() {
     document.getElementById('q-text').innerText = q.question;
     const list = document.getElementById('options-list');
     list.innerHTML = '';
-
     let shuffled = [...q.options].sort(() => Math.random() - 0.5);
 
     shuffled.forEach(opt => {
@@ -246,7 +268,8 @@ function saveProfile() {
         localStorage.setItem(`arc_user_${state.address}`, JSON.stringify({
             completedLevels: state.completedLevels,
             unlockedLevels: state.unlockedLevels,
-            isEmailUser: state.isEmailUser
+            isEmailUser: state.isEmailUser,
+            profile: state.profile
         }));
     }
 }
@@ -258,6 +281,11 @@ function loadFromStorage() {
         state.completedLevels = data.completedLevels || [];
         state.unlockedLevels = data.unlockedLevels || 1;
         state.isEmailUser = data.isEmailUser || false;
+        state.profile = data.profile || { username: '', email: '', x: '', discord: '' };
+        
+        // Fill input fields if they exist on the page
+        if(document.getElementById('display-name')) document.getElementById('display-name').value = state.profile.username;
+        if(document.getElementById('email-contact')) document.getElementById('email-contact').value = state.profile.email;
     }
 }
 
