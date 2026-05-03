@@ -1,6 +1,7 @@
 // --- 1. GLOBAL STATE ---
 let state = {
-    address: null,
+    address: null, // Stores Wallet Address OR Email
+    isEmailUser: false,
     profile: { username: '', email: '', x: '', discord: '' },
     unlockedLevels: 1,
     completedLevels: [],
@@ -10,11 +11,11 @@ let state = {
     visitedDocs: new Set() 
 };
 
-// --- 2. ROUTING SYSTEM ---
+// --- 2. ROUTING & DROPDOWN FIX ---
 window.navigate = function(pageId) {
     window.location.hash = pageId;
     
-    // FIX NO 4: Close dropdown menu when navigating
+    // FIX NO 4: Auto-close dropdown on navigation
     const dropdown = document.getElementById('profile-dropdown');
     if (dropdown) dropdown.classList.remove('active');
 };
@@ -29,71 +30,99 @@ window.addEventListener('hashchange', () => {
     }
 });
 
-// --- 3. WALLET LOGIC ---
-window.handleWalletAction = async function() {
+// --- 3. HYBRID LOGIN LOGIC (WALLET + EMAIL) ---
+window.toggleLoginModal = function(show) {
+    const modal = document.getElementById('login-modal');
+    if (modal) modal.style.display = show ? 'flex' : 'none';
+};
+
+window.handleWalletAction = function() {
     if (state.address) {
         document.getElementById('profile-dropdown').classList.toggle('active');
     } else {
-        await connectAndSign();
+        window.toggleLoginModal(true);
     }
 };
 
+window.handleEmailLogin = function() {
+    const email = document.getElementById('email-input').value;
+    if (!email || !email.includes('@')) {
+        alert("Enter a valid architect email.");
+        return;
+    }
+    state.address = email.toLowerCase();
+    state.isEmailUser = true;
+    finalizeLogin();
+};
+
 async function connectAndSign() {
-    if (!window.ethereum) return alert("MetaMask not found. Please install the extension.");
+    if (!window.ethereum) return alert("MetaMask not found.");
     try {
         const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        const userAddr = accounts[0];
-        const msg = `ARC_ACADEMY_AUTH: ${userAddr.toLowerCase()}\n\nVerify identity to access Architect Node.`;
-        await window.ethereum.request({ method: 'personal_sign', params: [msg, userAddr] });
-
-        state.address = userAddr;
-        loadFromStorage();
-        updateUI();
-        navigate('dashboard');
-    } catch (e) {
-        console.error(e);
-        alert("Connection failed. Check MetaMask.");
-    }
+        state.address = accounts[0];
+        state.isEmailUser = false;
+        finalizeLogin();
+    } catch (e) { console.error(e); }
 }
 
-// --- 4. QUIZ ENGINE & DATABASE ---
-// FIX NO 1: Added Level 2 and Level 3 back to the database
+function finalizeLogin() {
+    loadFromStorage();
+    updateUI();
+    window.toggleLoginModal(false);
+    navigate('dashboard');
+}
+
+// --- 4. QUIZ ENGINE & ALL 5 LEVELS ---
 const DB = {
     level1: {
         title: "Arc House & Architects",
         docLink: "https://community.arc.network/public/externals/introducing-arc-house-and-the-architects-program-2026-03-31",
-        questions: [
-            { 
-                question: "What is Arc House primarily designed for?", 
-                options: ["Token trading", "Mining rewards", "Community collaboration and builder engagement", "NFT marketplace"], 
-                correct_answer: "Community collaboration and builder engagement", 
-                ngmi: "Focus on the builder community." 
-            }
-        ]
+        questions: [{ 
+            question: "What is Arc House primarily designed for?", 
+            options: ["Token trading", "Community collaboration", "Mining rewards", "NFT marketplace"], 
+            correct_answer: "Community collaboration", 
+            ngmi: "Focus on the builder community." 
+        }]
     },
     level2: {
-        title: "Arc Protocol Basics",
-        docLink: "https://community.arc.network/docs/protocol-basics",
-        questions: [
-            { 
-                question: "What is the core focus of Arc Protocol?", 
-                options: ["Lending", "Agentic Economy", "Gaming", "Cloud Storage"], 
-                correct_answer: "Agentic Economy", 
-                ngmi: "Re-read the vision for the Agentic Economy." 
-            }
-        ]
+        title: "The Agentic Economy",
+        docLink: "https://community.arc.network/docs/agentic-economy",
+        questions: [{ 
+            question: "Who are the primary actors in an Agentic Economy?", 
+            options: ["Manual traders", "Autonomous AI Agents", "Central Banks", "Retail Bots"], 
+            correct_answer: "Autonomous AI Agents", 
+            ngmi: "Agents act on behalf of users." 
+        }]
     },
     level3: {
-        title: "Governance & Voting",
+        title: "Arc Protocol Architecture",
+        docLink: "https://community.arc.network/docs/architecture",
+        questions: [{ 
+            question: "What layer does Arc operate on?", 
+            options: ["Layer 1", "Layer 2", "Interoperability Layer", "Application Layer"], 
+            correct_answer: "Interoperability Layer", 
+            ngmi: "Arc connects fragmented liquidity." 
+        }]
+    },
+    level4: {
+        title: "Governance & DAOs",
         docLink: "https://community.arc.network/docs/governance",
-        questions: [
-            { 
-                question: "Who can participate in governance?", 
-                options: ["Anyone with a wallet", "Only developers", "Verified Architects", "The core team only"], 
-                correct_answer: "Verified Architects", 
-                ngmi: "Governance is earned through verification." 
-            }
-        ]
+        questions: [{ 
+            question: "How is proposal power determined?", 
+            options: ["Architect Rank", "Follower count", "Random selection", "Pay-to-play"], 
+            correct_answer: "Architect Rank", 
+            ngmi: "Contribution determines influence." 
+        }]
+    },
+    level5: {
+        title: "Advanced Integration",
+        docLink: "https://community.arc.network/docs/integration",
+        questions: [{ 
+            question: "What is the primary SDK for Arc?", 
+            options: ["ArcEngine", "NexusSDK", "AgentCore", "NodeJS"], 
+            correct_answer: "ArcEngine", 
+            ngmi: "Architects use the ArcEngine." 
+        }]
     }
 };
 
@@ -107,12 +136,12 @@ function renderDashboard() {
         const isLocked = lvlNum > state.unlockedLevels;
         const isComp = state.completedLevels.includes(key);
         const hasReadDocs = state.visitedDocs.has(key);
-        const hasAccount = !!state.address; // Check if user is logged in
+        const hasAccount = !!state.address;
 
         const card = document.createElement('div');
         card.className = `level-card ${isLocked ? 'locked' : ''}`;
         
-        // FIX NO 2: Start button disabled unless Logged In AND Docs Clicked
+        // FIX NO 2: Strict start requirements
         const canStart = hasAccount && hasReadDocs && !isLocked;
 
         card.innerHTML = `
@@ -125,11 +154,10 @@ function renderDashboard() {
                 <a href="${DB[key].docLink}" target="_blank" class="connect-btn-nav" 
                    style="flex:1; text-align:center; text-decoration:none;" 
                    onclick="unlockQuiz('${key}')">DOCS</a>
-                
                 <button class="launch-btn" style="flex:1; padding:10px; font-size:0.7rem;" 
                         onclick="startQuiz('${key}')" 
                         ${!canStart ? 'disabled style="opacity:0.3; cursor:not-allowed;"' : ''}>
-                    ${canStart ? 'START' : 'LOCKED'}
+                    ${isLocked ? 'LOCKED' : (hasReadDocs ? 'START' : 'READ DOCS')}
                 </button>
             </div>
         `;
@@ -137,6 +165,7 @@ function renderDashboard() {
     });
 }
 
+// --- 5. QUIZ ENGINE ---
 function unlockQuiz(key) {
     state.visitedDocs.add(key);
     setTimeout(renderDashboard, 500);
@@ -154,15 +183,10 @@ function loadQuestion() {
     const q = DB[state.currentLevel].questions[state.currentQIndex];
     document.getElementById('quiz-level-name').innerText = DB[state.currentLevel].title;
     document.getElementById('q-text').innerText = q.question;
-    
     const list = document.getElementById('options-list');
     list.innerHTML = '';
 
-    let shuffled = [...q.options];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
+    let shuffled = [...q.options].sort(() => Math.random() - 0.5);
 
     shuffled.forEach(opt => {
         const b = document.createElement('button');
@@ -216,10 +240,14 @@ function showResults() {
     }
 }
 
-// --- 5. STORAGE & UI ---
+// --- 6. STORAGE & UI ---
 function saveProfile() {
     if (state.address) {
-        localStorage.setItem(`arc_user_${state.address}`, JSON.stringify(state));
+        localStorage.setItem(`arc_user_${state.address}`, JSON.stringify({
+            completedLevels: state.completedLevels,
+            unlockedLevels: state.unlockedLevels,
+            isEmailUser: state.isEmailUser
+        }));
     }
 }
 
@@ -229,13 +257,16 @@ function loadFromStorage() {
         const data = JSON.parse(saved);
         state.completedLevels = data.completedLevels || [];
         state.unlockedLevels = data.unlockedLevels || 1;
+        state.isEmailUser = data.isEmailUser || false;
     }
 }
 
 function updateUI() {
     const btnText = document.getElementById('btn-text');
     if (state.address && btnText) {
-        btnText.innerText = state.address.substring(0,6) + "..." + state.address.substring(38);
+        btnText.innerText = state.isEmailUser 
+            ? state.address.split('@')[0].toUpperCase() 
+            : state.address.substring(0,6) + "..." + state.address.substring(38);
     }
 }
 
