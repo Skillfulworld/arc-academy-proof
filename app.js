@@ -13,6 +13,10 @@ let state = {
 // --- 2. ROUTING SYSTEM ---
 window.navigate = function(pageId) {
     window.location.hash = pageId;
+    
+    // FIX NO 4: Close dropdown menu when navigating
+    const dropdown = document.getElementById('profile-dropdown');
+    if (dropdown) dropdown.classList.remove('active');
 };
 
 window.addEventListener('hashchange', () => {
@@ -25,7 +29,7 @@ window.addEventListener('hashchange', () => {
     }
 });
 
-// --- 3. WALLET LOGIC (FIXED FOR PC) ---
+// --- 3. WALLET LOGIC ---
 window.handleWalletAction = async function() {
     if (state.address) {
         document.getElementById('profile-dropdown').classList.toggle('active');
@@ -36,11 +40,9 @@ window.handleWalletAction = async function() {
 
 async function connectAndSign() {
     if (!window.ethereum) return alert("MetaMask not found. Please install the extension.");
-
     try {
         const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
         const userAddr = accounts[0];
-
         const msg = `ARC_ACADEMY_AUTH: ${userAddr.toLowerCase()}\n\nVerify identity to access Architect Node.`;
         await window.ethereum.request({ method: 'personal_sign', params: [msg, userAddr] });
 
@@ -54,11 +56,11 @@ async function connectAndSign() {
     }
 }
 
-// --- 4. QUIZ ENGINE & LOCK LOGIC ---
+// --- 4. QUIZ ENGINE & DATABASE ---
+// FIX NO 1: Added Level 2 and Level 3 back to the database
 const DB = {
     level1: {
         title: "Arc House & Architects",
-        subtitle: "Community & Contribution",
         docLink: "https://community.arc.network/public/externals/introducing-arc-house-and-the-architects-program-2026-03-31",
         questions: [
             { 
@@ -66,12 +68,30 @@ const DB = {
                 options: ["Token trading", "Mining rewards", "Community collaboration and builder engagement", "NFT marketplace"], 
                 correct_answer: "Community collaboration and builder engagement", 
                 ngmi: "Focus on the builder community." 
-            },
+            }
+        ]
+    },
+    level2: {
+        title: "Arc Protocol Basics",
+        docLink: "https://community.arc.network/docs/protocol-basics",
+        questions: [
             { 
-                question: "How does someone become an Architect?", 
-                options: ["By buying tokens", "By contributing and earning points", "By application form only", "By staking assets"], 
-                correct_answer: "By contributing and earning points", 
-                ngmi: "Status is earned through effort." 
+                question: "What is the core focus of Arc Protocol?", 
+                options: ["Lending", "Agentic Economy", "Gaming", "Cloud Storage"], 
+                correct_answer: "Agentic Economy", 
+                ngmi: "Re-read the vision for the Agentic Economy." 
+            }
+        ]
+    },
+    level3: {
+        title: "Governance & Voting",
+        docLink: "https://community.arc.network/docs/governance",
+        questions: [
+            { 
+                question: "Who can participate in governance?", 
+                options: ["Anyone with a wallet", "Only developers", "Verified Architects", "The core team only"], 
+                correct_answer: "Verified Architects", 
+                ngmi: "Governance is earned through verification." 
             }
         ]
     }
@@ -87,9 +107,14 @@ function renderDashboard() {
         const isLocked = lvlNum > state.unlockedLevels;
         const isComp = state.completedLevels.includes(key);
         const hasReadDocs = state.visitedDocs.has(key);
+        const hasAccount = !!state.address; // Check if user is logged in
 
         const card = document.createElement('div');
         card.className = `level-card ${isLocked ? 'locked' : ''}`;
+        
+        // FIX NO 2: Start button disabled unless Logged In AND Docs Clicked
+        const canStart = hasAccount && hasReadDocs && !isLocked;
+
         card.innerHTML = `
             <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
                 <span style="font-family:Orbitron; font-size:0.7rem; color:var(--arc-purple)">LEVEL 0${lvlNum}</span>
@@ -103,8 +128,8 @@ function renderDashboard() {
                 
                 <button class="launch-btn" style="flex:1; padding:10px; font-size:0.7rem;" 
                         onclick="startQuiz('${key}')" 
-                        ${isLocked || !hasReadDocs ? 'disabled style="opacity:0.3; cursor:not-allowed;"' : ''}>
-                    ${hasReadDocs ? 'START' : 'LOCKED'}
+                        ${!canStart ? 'disabled style="opacity:0.3; cursor:not-allowed;"' : ''}>
+                    ${canStart ? 'START' : 'LOCKED'}
                 </button>
             </div>
         `;
@@ -133,7 +158,6 @@ function loadQuestion() {
     const list = document.getElementById('options-list');
     list.innerHTML = '';
 
-    // FISHER-YATES SHUFFLE
     let shuffled = [...q.options];
     for (let i = shuffled.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
