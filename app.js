@@ -84,7 +84,7 @@ function shuffleArray(array) {
 window.navigate = function(screenId) {
     document.querySelectorAll('.page-section').forEach(s => {
         s.classList.remove('active');
-        s.style.display = 'none'; // Ensure previous screens are fully hidden
+        s.style.display = 'none'; 
     });
     
     const targetId = screenId.includes('-screen') ? screenId : `${screenId}-screen`;
@@ -92,7 +92,7 @@ window.navigate = function(screenId) {
     
     if (target) {
         target.classList.add('active');
-        target.style.display = 'flex'; // Force display when active
+        target.style.display = 'flex'; 
         if (screenId === 'dashboard') renderLevels();
     }
 };
@@ -172,7 +172,6 @@ function showQuestion() {
 
 window.handleAnswer = function(selectedOption, correctOption) {
     const isCorrect = selectedOption === correctOption;
-    // Disable all buttons after selection
     document.querySelectorAll('#options-list .launch-btn').forEach(b => b.disabled = true);
     
     if (isCorrect) {
@@ -207,7 +206,42 @@ function finishQuiz() {
     navigate('dashboard');
 }
 
-// --- 6. AUTH & UI ---
+// --- 6. CHECK-IN LOGIC ---
+window.toggleCheckinModal = function(show) {
+    const modal = document.getElementById('checkin-modal');
+    if (modal) {
+        modal.style.display = show ? 'flex' : 'none';
+        if (show) renderCheckinGrid();
+    }
+};
+
+function renderCheckinGrid() {
+    const grid = document.getElementById('checkin-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    
+    // Simulate 7-day grid
+    for (let i = 1; i <= 7; i++) {
+        const box = document.createElement('div');
+        box.className = 'day-box';
+        // Logic: if current day is 1 and streak is 0, Day 1 is "current"
+        if (i <= state.streak) box.classList.add('completed');
+        if (i === state.streak + 1) box.classList.add('current');
+        
+        box.innerHTML = `<div style="font-size:0.6rem; opacity:0.6;">DAY</div><div>${i}</div>`;
+        grid.appendChild(box);
+    }
+}
+
+window.processCheckIn = function() {
+    const dot = document.getElementById('checkin-dot');
+    state.streak++;
+    if (dot) dot.classList.remove('active');
+    showToast(`PROTOCOL_SYNC_COMPLETE: STREAK ${state.streak}`);
+    toggleCheckinModal(false);
+};
+
+// --- 7. AUTH & UI ---
 window.handleWalletAction = function() {
     if (!state.address) document.getElementById('login-modal').style.display = 'flex';
     else document.getElementById('profile-dropdown').classList.toggle('show');
@@ -222,7 +256,7 @@ window.handleEmailLogin = function() {
 
 function showToast(m) {
     const t = document.createElement('div');
-    t.style.cssText = "position:fixed; bottom:20px; left:20px; background:var(--arc-purple); color:white; padding:12px; border-radius:4px; font-family:'Orbitron'; z-index:9999; font-size:0.7rem; border: 1px solid white;";
+    t.style.cssText = "position:fixed; bottom:20px; right:20px; background:var(--arc-purple); color:white; padding:12px; border-radius:4px; font-family:'Orbitron'; z-index:9999; font-size:0.7rem; border: 1px solid white;";
     t.innerText = m;
     document.body.appendChild(t);
     setTimeout(() => t.remove(), 3000);
