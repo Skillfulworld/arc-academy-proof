@@ -15,6 +15,11 @@
             <span class="logo-text">ARC // ACADEMY</span>
         </div>
         <div class="wallet-wrapper">
+            <div class="checkin-wrapper" onclick="toggleCheckinModal(true)" style="margin-right: 20px; cursor: pointer; position: relative; display: flex; align-items: center;">
+                <span class="checkin-icon" style="font-size: 1.2rem;">📅</span>
+                <div id="checkin-dot" class="notification-dot active"></div>
+            </div>
+
             <button class="connect-btn-nav" id="wallet-btn" onclick="handleWalletAction()">
                 <span id="btn-text">CONNECT WALLET</span>
             </button>
@@ -113,7 +118,7 @@
     <script src="app.js" defer></script>
 
     <div id="login-modal" class="modal-overlay" style="display:none;">
-        <div class="card login-card">
+        <div class="card login-card" id="login-content">
             <h2 style="font-family: 'Orbitron'; color: var(--arc-purple);">INITIALIZE_IDENTITY</h2>
             <p style="font-size: 0.8rem; margin-bottom: 20px; opacity: 0.7;">Select access method to sync progress.</p>
             
@@ -133,5 +138,21 @@
             <button class="back-link" onclick="toggleLoginModal(false)" style="margin-top: 20px; display: block; width: 100%;">CANCEL</button>
         </div>
     </div>
+
+    <div id="checkin-modal" class="modal-overlay" style="display:none;">
+        <div class="card login-card" style="max-width: 500px;">
+            <h2 style="font-family: 'Orbitron'; color: var(--arc-purple);">DAILY_PROTOCOL_SYNC</h2>
+            <p style="font-size: 0.8rem; margin-bottom: 20px; opacity: 0.7;">Maintain your streak to amplify Architect points.</p>
+            
+            <div class="checkin-grid" id="checkin-grid">
+                </div>
+
+            <button id="checkin-btn" class="launch-btn" onclick="processCheckIn()" style="width:100%; margin-top: 10px;">
+                SIGN TRANSACTION (ARC_TESTNET)
+            </button>
+            <button class="back-link" onclick="toggleCheckinModal(false)" style="margin-top: 20px; display: block; width: 100%;">CLOSE</button>
+        </div>
+    </div>
+
 </body>
 </html>
