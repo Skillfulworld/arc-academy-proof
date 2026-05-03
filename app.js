@@ -1,4 +1,4 @@
-// --- 1. GLOBAL STATE UPDATED ---
+// --- 1. GLOBAL STATE ---
 let state = {
     address: null, 
     isEmailUser: false,
@@ -8,39 +8,67 @@ let state = {
     currentLevel: null,
     currentQIndex: 0,
     score: 0,
-    visitedDocs: new Set(),
-    // New Web3 Features
     streak: 0,
     lastCheckIn: null,
     hasMintedBadge: false 
 };
 
-// --- 2. NOTIFICATION SYSTEM ---
-function showToast(message) {
-    const toast = document.createElement('div');
-    toast.className = 'toast-notification';
-    toast.innerText = message;
-    document.body.appendChild(toast);
-    setTimeout(() => {
-        toast.classList.add('fade-out');
-        setTimeout(() => toast.remove(), 500);
-    }, 3000);
-}
+// --- 2. NAVIGATION & UI ENGINE (Fixes the Launch Button) ---
+window.navigate = function(screenId) {
+    // Hide all sections
+    document.querySelectorAll('.page-section').forEach(section => {
+        section.classList.remove('active');
+    });
+    
+    // Show target section
+    const target = document.getElementById(`${screenId}-screen`);
+    if (target) {
+        target.classList.add('active');
+        window.scrollTo(0, 0);
+    }
 
-// --- 3. HYBRID LOGIN & OTP SIMULATION ---
+    // Refresh UI specifically for dashboard
+    if (screenId === 'dashboard') renderLevels();
+};
+
+// --- 3. WALLET & DROPDOWN LOGIC ---
+window.handleWalletAction = function() {
+    if (!state.address) {
+        toggleLoginModal(true);
+    } else {
+        const dropdown = document.getElementById('profile-dropdown');
+        dropdown.classList.toggle('show');
+    }
+};
+
+window.toggleLoginModal = function(show) {
+    const modal = document.getElementById('login-modal');
+    modal.style.display = show ? 'flex' : 'none';
+};
+
+// Close dropdown if user clicks elsewhere
+window.onclick = function(event) {
+    if (!event.target.matches('.connect-btn-nav') && !event.target.matches('#btn-text')) {
+        const dropdown = document.getElementById('profile-dropdown');
+        if (dropdown && dropdown.classList.contains('show')) {
+            dropdown.classList.remove('show');
+        }
+    }
+};
+
+// --- 4. HYBRID LOGIN & OTP ---
 window.handleEmailLogin = function() {
     const email = document.getElementById('email-input').value;
     if (!email || !email.includes('@')) return alert("Enter a valid architect email.");
     
-    // Change Modal UI to OTP Mode
-    const modalContent = document.getElementById('login-content');
+    const modalContent = document.querySelector('#login-modal .card');
     modalContent.innerHTML = `
         <h2 style="font-family: 'Orbitron'; color: var(--arc-purple);">VERIFY_IDENTITY</h2>
         <p style="font-size: 0.8rem; margin-bottom: 20px; opacity: 0.7;">Enter the 6-digit code sent to ${email}</p>
         <input type="text" id="otp-input" placeholder="000000" maxlength="6" 
-               style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--arc-purple); color: white; border-radius: 4px; text-align: center; font-size: 1.5rem; letter-spacing: 8px; margin-bottom: 20px;">
-        <button class="launch-btn" onclick="verifyOTP('${email}')" style="width:100%;">VALIDATE_SEQUENCE</button>
-        <button class="back-link" onclick="location.reload()" style="margin-top:15px;">CANCEL</button>
+               style="width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--arc-purple); color: white; border-radius: 4px; text-align: center; font-size: 1.5rem; letter-spacing: 8px; margin-bottom: 20px;">
+        <button class="launch-btn" onclick="verifyOTP('${email}')" style="width:100%; background:var(--arc-purple); color:white;">VALIDATE_SEQUENCE</button>
+        <button class="back-link" onclick="location.reload()" style="margin-top:15px; background:none; border:none; color:gray; cursor:pointer; width:100%;">CANCEL</button>
     `;
 };
 
@@ -51,10 +79,17 @@ window.verifyOTP = function(email) {
     state.address = email.toLowerCase();
     state.isEmailUser = true;
     finalizeLogin();
-    showToast("ACCOUNT_SYNC_COMPLETE");
 };
 
-// --- 4. DAILY CHECK-IN & TESTNET TRANSACTION ---
+function finalizeLogin() {
+    const btnText = document.getElementById('btn-text');
+    btnText.innerText = state.address.substring(0, 6).toUpperCase() + "...";
+    toggleLoginModal(false);
+    loadFromStorage();
+    showToast("ACCOUNT_SYNC_COMPLETE");
+}
+
+// --- 5. DAILY CHECK-IN ---
 window.toggleCheckinModal = function(show) {
     const modal = document.getElementById('checkin-modal');
     if (modal) modal.style.display = show ? 'flex' : 'none';
@@ -63,6 +98,7 @@ window.toggleCheckinModal = function(show) {
 
 function renderCheckinGrid() {
     const grid = document.getElementById('checkin-grid');
+    if (!grid) return;
     grid.innerHTML = '';
     const today = new Date().toDateString();
     
@@ -71,8 +107,7 @@ function renderCheckinGrid() {
         const isCurrent = (i === state.streak + 1) && (state.lastCheckIn !== today);
         
         grid.innerHTML += `
-            <div class="day-box ${isDone ? 'completed' : ''} ${isCurrent ? 'current' : ''}" 
-                 style="padding: 10px; border: 1px solid ${isDone ? 'var(--arc-purple)' : 'rgba(255,255,255,0.1)'}; text-align: center; border-radius: 4px;">
+            <div class="day-box ${isDone ? 'completed' : ''} ${isCurrent ? 'current' : ''}">
                 <div style="font-size: 0.6rem; opacity: 0.6;">DAY ${i}</div>
                 <div style="font-family: Orbitron; font-size: 0.8rem; margin-top: 5px;">${i * 10}</div>
                 <div style="font-size: 0.5rem; color: var(--arc-purple);">PTS</div>
@@ -88,21 +123,9 @@ window.processCheckIn = async function() {
     const originalText = btn.innerText;
 
     try {
-        btn.innerText = "SIGNING_ON_ARC_TESTNET...";
+        btn.innerText = "SIGNING...";
         btn.disabled = true;
-
-        if (window.ethereum && !state.isEmailUser) {
-            const txParams = {
-                to: '0x0000000000000000000000000000000000000000',
-                from: state.address,
-                value: '0x0', 
-                gas: '0x5208' // Approx 21k gas
-            };
-            await window.ethereum.request({ method: 'eth_sendTransaction', params: [txParams] });
-        } else {
-            // Simulated cloud-wallet signature for email users
-            await new Promise(res => setTimeout(res, 1500));
-        }
+        await new Promise(res => setTimeout(res, 1200)); // Simulated Network Latency
 
         state.streak = (state.streak >= 7) ? 1 : state.streak + 1;
         state.lastCheckIn = today;
@@ -119,75 +142,52 @@ window.processCheckIn = async function() {
     }
 };
 
-// --- 5. UPDATED RESULTS & BADGE MINTING ---
-function showResults() {
-    navigate('results');
-    const total = DB[state.currentLevel].questions.length;
-    const pct = (state.score / total) * 100;
-    document.getElementById('final-score-num').innerText = Math.round(pct);
-    const mainBtn = document.getElementById('result-main-btn');
+// --- 6. DASHBOARD & STORAGE ---
+function renderLevels() {
+    const grid = document.getElementById('levels-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
     
-    if (pct === 100) {
-        document.getElementById('result-verdict').innerText = "VERIFIED_ARCHITECT";
-        mainBtn.innerText = "MINT COMPLETION BADGE";
-        mainBtn.onclick = () => mintLevelBadge();
-    } else {
-        document.getElementById('result-verdict').innerText = "STATUS: NGMI";
-        mainBtn.innerText = "RETRY MODULE";
-        mainBtn.onclick = () => startQuiz(state.currentLevel);
+    // Simple mock levels
+    for (let i = 1; i <= 5; i++) {
+        const isLocked = i > state.unlockedLevels;
+        grid.innerHTML += `
+            <div class="card" style="opacity: ${isLocked ? '0.5' : '1'}; border: 1px solid ${isLocked ? 'gray' : 'var(--arc-purple)'}; padding: 20px; text-align: center;">
+                <h3 style="font-family: 'Orbitron'; font-size: 0.8rem;">MODULE_0${i}</h3>
+                <p style="font-size: 0.7rem; margin: 10px 0;">Agentic Economics Basics</p>
+                <button class="launch-btn" ${isLocked ? 'disabled' : ''} style="font-size: 0.7rem; padding: 5px 10px;">
+                    ${isLocked ? 'LOCKED' : 'ENTER'}
+                </button>
+            </div>
+        `;
     }
 }
 
-async function mintLevelBadge() {
-    const mainBtn = document.getElementById('result-main-btn');
-    mainBtn.innerText = "MINTING_NFT...";
-    mainBtn.disabled = true;
-
-    // Simulate Minting Tx
-    await new Promise(res => setTimeout(res, 2000));
-
-    if (!state.completedLevels.includes(state.currentLevel)) {
-        state.completedLevels.push(state.currentLevel);
-        state.unlockedLevels = Math.min(5, state.completedLevels.length + 1);
-        state.hasMintedBadge = true; // Tracks that the latest level is fully "on-chain"
-        saveProfile(); 
-    }
-
-    showToast("BADGE_MINTED_SUCCESSFULLY");
-    mainBtn.disabled = false;
-    navigate('dashboard');
+function showToast(message) {
+    const toast = document.createElement('div');
+    toast.style.cssText = "position:fixed; bottom:20px; right:20px; background:var(--arc-purple); color:white; padding:10px 20px; border-radius:4px; font-family:'Orbitron'; font-size:0.8rem; z-index:9999;";
+    toast.innerText = message;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
 }
 
-// --- 6. STORAGE & PERSISTENCE ---
 function saveProfile() {
     if (state.address) {
-        localStorage.setItem(`arc_user_${state.address}`, JSON.stringify({
-            completedLevels: state.completedLevels,
-            unlockedLevels: state.unlockedLevels,
-            isEmailUser: state.isEmailUser,
-            profile: state.profile,
-            streak: state.streak,
-            lastCheckIn: state.lastCheckIn
-        }));
+        localStorage.setItem(`arc_user_${state.address}`, JSON.stringify(state));
     }
 }
 
 function loadFromStorage() {
     const saved = localStorage.getItem(`arc_user_${state.address}`);
     if (saved) {
-        const data = JSON.parse(saved);
-        state.completedLevels = data.completedLevels || [];
-        state.unlockedLevels = data.unlockedLevels || 1;
-        state.isEmailUser = data.isEmailUser || false;
-        state.profile = data.profile || { username: '', email: '', x: '', discord: '' };
-        state.streak = data.streak || 0;
-        state.lastCheckIn = data.lastCheckIn || null;
-        
-        // Notification dot check
+        Object.assign(state, JSON.parse(saved));
         const today = new Date().toDateString();
         const dot = document.getElementById('checkin-dot');
         if (state.lastCheckIn === today) dot.classList.remove('active');
     }
 }
 
-// Rest of your existing functions (navigate, updateUI, disconnect, etc.) remain the same
+window.disconnect = function() {
+    state.address = null;
+    location.reload();
+};
