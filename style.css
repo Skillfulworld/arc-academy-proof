@@ -24,13 +24,13 @@ body {
     position: fixed;
     top: 0;
     width: 100%;
-    height: 70px;
+    height: 80px; /* Increased slightly for better breathing room */
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0 5%;
-    background: rgba(5, 13, 22, 0.95);
-    backdrop-filter: blur(10px);
+    background: rgba(5, 13, 22, 0.98);
+    backdrop-filter: blur(15px);
     border-bottom: 1px solid var(--border);
     z-index: 1000;
 }
@@ -42,9 +42,8 @@ body {
     gap: 12px;
 }
 
-/* THE CRITICAL FIX: Constrains the logo from taking over the screen */
 .nav-logo {
-    height: 35px; 
+    height: 30px; /* Scaled down slightly to prevent pushing layout */
     width: auto;
     object-fit: contain;
 }
@@ -60,7 +59,7 @@ body {
 .page-section {
     display: none; 
     min-height: 100vh;
-    padding: 100px 20px 60px; /* Offset for the fixed navbar */
+    padding: 120px 20px 60px; /* Adjusted padding to clear fixed navbar */
     width: 100%;
 }
 
@@ -71,17 +70,20 @@ body {
     animation: fadeIn 0.4s ease-out;
 }
 
-/* --- 4. CHECK-IN UI & NOTIFICATION --- */
+/* --- 4. CHECK-IN UI & WALLET WRAPPER --- */
 .wallet-wrapper {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 25px; /* FIXED: Increased gap to prevent overlapping in the nav */
+    position: relative;
 }
 
 .checkin-wrapper {
     position: relative;
     cursor: pointer;
     transition: transform 0.2s;
+    display: flex;
+    align-items: center;
 }
 
 .checkin-wrapper:hover { transform: scale(1.1); }
@@ -109,7 +111,42 @@ body {
     animation: pulseRed 2s infinite;
 }
 
-/* --- 5. CHECK-IN GRID --- */
+/* --- 5. DROPDOWN FIX --- */
+.dropdown-content {
+    display: none; /* FIXED: Hidden by default */
+    position: absolute;
+    top: 60px;
+    right: 0;
+    background: var(--arc-blue);
+    border: 1px solid var(--arc-purple);
+    border-radius: 8px;
+    width: 220px;
+    padding: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    z-index: 1001;
+}
+
+/* Use this class to show via JS */
+.dropdown-content.show {
+    display: block;
+}
+
+.dropdown-content a {
+    display: block;
+    color: white;
+    text-decoration: none;
+    padding: 10px 0;
+    font-size: 0.85rem;
+    font-family: 'Orbitron', sans-serif;
+    transition: 0.2s;
+    cursor: pointer;
+}
+
+.dropdown-content a:hover {
+    color: var(--arc-purple);
+}
+
+/* --- 6. CHECK-IN GRID & MODALS --- */
 .checkin-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -136,18 +173,6 @@ body {
     animation: borderGlow 2s infinite alternate;
 }
 
-/* --- 6. OTP & MODALS --- */
-#otp-input {
-    letter-spacing: 12px !important;
-    font-weight: 900;
-    text-indent: 12px;
-    border: 2px solid var(--arc-purple) !important;
-    background: rgba(139, 92, 246, 0.05) !important;
-    color: white;
-    padding: 10px;
-    text-align: center;
-}
-
 .modal-overlay {
     position: fixed;
     inset: 0;
@@ -160,6 +185,18 @@ body {
 }
 
 /* --- 7. BUTTONS --- */
+.connect-btn-nav {
+    background: transparent;
+    color: var(--white);
+    border: 1px solid var(--arc-purple);
+    padding: 0.6rem 1.2rem;
+    cursor: pointer;
+    font-family: 'Orbitron';
+    font-size: 0.8rem;
+    border-radius: 4px;
+    white-space: nowrap; /* FIXED: Prevents text from wrapping/overlapping */
+}
+
 .launch-btn {
     background: var(--white);
     color: var(--arc-dark);
