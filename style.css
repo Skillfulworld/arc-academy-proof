@@ -55,18 +55,19 @@ body {
     font-size: 1rem;
 }
 
-/* --- 3. PAGE ROUTING --- */
+/* --- 3. PAGE ROUTING (FIXED) --- */
 .page-section {
     display: none; 
     min-height: 100vh;
-    padding: 120px 20px 60px; 
+    padding: 100px 20px 60px; /* Space for fixed navbar */
     width: 100%;
 }
 
 .page-section.active {
-    display: flex;
+    display: flex !important;
     flex-direction: column;
     align-items: center;
+    justify-content: flex-start; /* Ensures content starts at top, allowing scroll */
     animation: fadeIn 0.4s ease-out;
 }
 
@@ -230,12 +231,14 @@ body {
     background: var(--glass);
     border: 1px solid var(--border);
     backdrop-filter: blur(10px);
+    padding: 20px;
 }
 
-/* --- 9. QUIZ ENGINE STYLING (NEW FIX) --- */
+/* --- 9. QUIZ ENGINE STYLING (FIXED) --- */
 #quiz-screen .card {
     max-width: 600px;
-    width: 100%;
+    width: 90%; /* Responsive width */
+    margin: 20px auto;
 }
 
 #options-list {
@@ -243,18 +246,20 @@ body {
     display: flex;
     flex-direction: column;
     gap: 12px;
+    width: 100%;
 }
 
 #options-list .launch-btn {
     text-align: left;
     padding: 18px 20px;
     font-size: 0.85rem;
-    font-family: 'Inter', sans-serif; /* Keep question text readable */
+    font-family: 'Inter', sans-serif;
     font-weight: 400;
     background: rgba(255, 255, 255, 0.05);
     color: white;
     border: 1px solid var(--border);
     text-transform: none;
+    width: 100%;
 }
 
 #options-list .launch-btn:hover {
@@ -267,6 +272,7 @@ body {
     border-radius: 4px;
     margin-top: 20px;
     background: rgba(0, 0, 0, 0.3);
+    width: 100%;
 }
 
 /* --- 10. ANIMATIONS --- */
