@@ -1,3 +1,26 @@
+// Function to change "Pages"
+function navigate(pageId) {
+    window.location.hash = pageId;
+}
+
+// Listener that detects when the URL hash changes (or back button is pressed)
+window.addEventListener('hashchange', () => {
+    const hash = window.location.hash.replace('#', '') || 'landing';
+    
+    // Hide all sections
+    document.querySelectorAll('.page-section').forEach(section => {
+        section.classList.remove('active');
+    });
+
+    // Show the targeted section
+    const activeSection = document.getElementById(hash + '-screen');
+    if (activeSection) {
+        activeSection.classList.add('active');
+    }
+});
+
+// Initialize the app on the correct page
+window.dispatchEvent(new HashChangeEvent('hashchange'));
 const DB = {
     level1: {
         title: "Arc House & Architects",
