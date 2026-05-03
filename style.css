@@ -2,7 +2,7 @@
 :root {
     --arc-dark: #050d16;
     --arc-blue: #0a1f33;
-    --arc-purple: #8b5cf6; /* Matches the arc in your logo */
+    --arc-purple: #8b5cf6;
     --arc-accent: #3a82c4;
     --white: #ffffff;
     --glass: rgba(255, 255, 255, 0.03);
@@ -28,26 +28,27 @@ body {
     display: none; /* Hidden by default */
     min-height: 100vh;
     padding: 120px 20px 60px;
-    flex-direction: column;
-    align-items: center;
     width: 100%;
 }
 
 .page-section.active {
     display: flex; /* Shown when active */
+    flex-direction: column;
+    align-items: center;
     animation: fadeIn 0.4s ease-out;
 }
 
-/* --- NAVIGATION & LOGO --- */
+/* --- FIXED NAVBAR & LOGO --- */
 .navbar {
     position: fixed;
     top: 0;
     width: 100%;
+    height: 80px; 
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.5rem 5%;
-    background: rgba(5, 13, 22, 0.8);
+    padding: 0 5%;
+    background: rgba(5, 13, 22, 0.95);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--border);
     z-index: 1000;
@@ -57,10 +58,13 @@ body {
     display: flex;
     align-items: center;
     cursor: pointer;
+    height: 100%;
 }
 
 .nav-logo {
-    height: 35px;
+    height: 45px; /* Controlled height */
+    width: auto;
+    object-fit: contain;
     margin-right: 12px;
 }
 
@@ -74,6 +78,8 @@ body {
 /* --- WALLET & DROPDOWN --- */
 .wallet-wrapper {
     position: relative;
+    display: flex;
+    align-items: center;
 }
 
 .connect-btn-nav {
@@ -94,19 +100,23 @@ body {
 }
 
 .dropdown-content {
-    display: none;
+    display: none; 
     position: absolute;
+    top: 100%; 
     right: 0;
-    top: 120%;
+    margin-top: 10px;
     background: var(--arc-blue);
-    border: 1px solid var(--border);
-    min-width: 220px;
-    border-radius: 8px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    border: 1px solid var(--arc-purple);
+    min-width: 200px;
+    border-radius: 4px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+    z-index: 1001;
     overflow: hidden;
 }
 
-.dropdown-content.active { display: block; }
+.dropdown-content.active {
+    display: block;
+}
 
 .dropdown-header {
     padding: 12px 20px;
@@ -128,7 +138,6 @@ body {
 
 .dropdown-content a:hover {
     background: rgba(255,255,255,0.05);
-    padding-left: 25px;
 }
 
 /* --- HERO SECTION --- */
@@ -234,9 +243,7 @@ input:focus {
     font-size: 0.8rem;
 }
 
-.back-link:hover { color: white; }
-
-/* --- QUIZ SPECIFIC --- */
+/* --- QUIZ STUFF --- */
 .option-btn {
     width: 100%;
     padding: 1rem;
@@ -247,7 +254,6 @@ input:focus {
     text-align: left;
     cursor: pointer;
     border-radius: 6px;
-    transition: 0.2s;
 }
 
 .option-btn:hover:not(:disabled) {
@@ -263,5 +269,4 @@ input:focus {
 
 @media (max-width: 768px) {
     .social-grid { grid-template-columns: 1fr; }
-    .navbar { padding: 1rem 5%; }
 }
