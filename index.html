@@ -5,55 +5,98 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Arc Academy | Master the Agentic Economy</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Orbitron:wght@900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Orbitron:wght@400;900&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <div id="auth-screen" class="screen active">
-        <nav class="navbar">
-            <div class="logo-text">ARC // ACADEMY</div>
-            <button class="connect-btn-nav" onclick="connectWallet()">
+    <nav class="navbar">
+        <div class="logo-container" onclick="navigate('landing')">
+            <img src="logo.png" alt="Arc Academy Logo" class="nav-logo">
+            <span class="logo-text">ARC // ACADEMY</span>
+        </div>
+        <div class="wallet-wrapper">
+            <button class="connect-btn-nav" id="wallet-btn" onclick="handleWalletAction()">
                 <span id="btn-text">CONNECT WALLET</span>
             </button>
-        </nav>
-
-        <div class="hero-container">
-            <h1 class="hero-title">MASTER THE <br><span>AGENTIC ECONOMY</span></h1>
-            <button class="launch-btn" onclick="showScreen('dashboard-screen'); renderDashboard();">
-                LAUNCH APP
-            </button>
-            <div class="footer-social">
-                <span>CONNECT WITH US</span>
-                <a href="https://x.com/Zkfenrir" target="_blank" class="social-link">
-                    @Zkfenrir
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-                </a>
+            <div id="profile-dropdown" class="dropdown-content">
+                <div class="dropdown-header">ARCHITECT_NODE</div>
+                <a onclick="navigate('profile')">👤 VIEW PROFILE</a>
+                <a onclick="navigate('dashboard')">🏆 MY PROGRESS</a>
+                <hr>
+                <a onclick="disconnect()" class="logout">🚪 DISCONNECT</a>
             </div>
         </div>
-    </div>
+    </nav>
 
-    <div id="dashboard-screen" class="screen">
-        <div class="card">
+    <section id="landing-screen" class="page-section active">
+        <div class="hero-container">
+            <h1 class="hero-title">MASTER THE <br><span>AGENTIC ECONOMY</span></h1>
+            <p class="hero-subtitle">The first education protocol built for the future of on-chain agents.</p>
+            <button class="launch-btn" onclick="navigate('dashboard')">LAUNCH APP</button>
+            
+            <div class="footer-social">
+                <span>CONNECT WITH US</span>
+                <a href="https://x.com/Zkfenrir" target="_blank" class="social-link">@Zkfenrir</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="dashboard-screen" class="page-section">
+        <div class="card dashboard-card">
             <div class="dash-header">
-                <h2>DASHBOARD</h2>
+                <h2>ACADEMY_DASHBOARD</h2>
                 <div class="stats-row">
                     <span>PROGRESS: <span id="overall-percent">0%</span></span>
                 </div>
             </div>
-            <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
-            <div id="levels-grid" class="levels-grid"></div>
+            <div class="progress-track">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <div id="levels-grid" class="levels-grid">
+                </div>
         </div>
-    </div>
+    </section>
 
-    <div id="quiz-screen" class="screen">
-        <div class="card">
+    <section id="profile-screen" class="page-section">
+        <div class="card profile-card">
+            <h2>ARCHITECT_PROFILE</h2>
+            <p class="card-subtitle">Update your identity and link your social nodes.</p>
+            
+            <div class="profile-form">
+                <div class="input-group">
+                    <label>DISPLAY_NAME</label>
+                    <input type="text" id="p-username" placeholder="Enter username...">
+                </div>
+                <div class="input-group">
+                    <label>EMAIL_CONTACT</label>
+                    <input type="email" id="p-email" placeholder="architect@arc.network">
+                </div>
+                <div class="social-grid">
+                    <div class="input-group">
+                        <label>X_HANDLE</label>
+                        <input type="text" id="p-x" placeholder="@username">
+                    </div>
+                    <div class="input-group">
+                        <label>DISCORD_ID</label>
+                        <input type="text" id="p-discord" placeholder="username#0000">
+                    </div>
+                </div>
+                <button class="launch-btn save-btn" onclick="saveProfile()">SYNC_IDENTITY</button>
+            </div>
+            <button class="back-link" onclick="navigate('dashboard')">← RETURN_TO_DASHBOARD</button>
+        </div>
+    </section>
+
+    <section id="quiz-screen" class="page-section">
+        <div class="card quiz-card">
             <div id="quiz-header">
-                <span id="quiz-level-tag">LEVEL 01</span>
+                <span id="quiz-level-tag">LEVEL_PROMPT</span>
                 <h2 id="quiz-level-name">LOADING...</h2>
             </div>
             <div id="q-container">
-                <p id="q-text">Loading question...</p>
-                <div id="options-list"></div>
+                <p id="q-text">Initialising data stream...</p>
+                <div id="options-list">
+                    </div>
             </div>
             <div id="feedback-box">
                 <div id="success-box" class="feedback success">CORRECT_PROOF_RECORDED</div>
@@ -61,16 +104,16 @@
             </div>
             <button id="next-btn" class="launch-btn" style="display:none; margin-top:20px; width:100%;" onclick="handleNext()">CONTINUE_SEQUENCE</button>
         </div>
-    </div>
+    </section>
 
-    <div id="results-screen" class="screen">
-        <div class="card" style="text-align: center;">
+    <section id="results-screen" class="page-section">
+        <div class="card result-card">
             <h2 id="result-verdict">ANALYZING_RESULTS</h2>
-            <p id="result-msg" style="margin: 20px 0; color: rgba(255,255,255,0.7);"></p>
-            <div class="score-display">SCORE: <span id="final-score-num">0</span>%</div>
+            <p id="result-msg"></p>
+            <div class="score-display">ACCURACY: <span id="final-score-num">0</span>%</div>
             <button id="result-main-btn" class="launch-btn" style="margin-top:30px; width:100%;">RETURN_TO_BASE</button>
         </div>
-    </div>
+    </section>
 
     <script src="app.js"></script>
 </body>
