@@ -1,4 +1,17 @@
-// --- 1. GLOBAL STATE ---
+// --- 1. GLOBAL STATE & QUIZ DATABASE ---
+const DB = {
+    'Basics': {
+        questions: [
+            { question: "What is the core of an Agentic Economy?", options: ["Manual Labor", "Autonomous Agents", "Central Banking"], correct: 1 },
+            { question: "Which layer handles agent coordination?", options: ["Settlement Layer", "Intelligence Layer", "Physical Layer"], correct: 1 }
+        ]
+    },
+    'Economics': { questions: [{ question: "Define Tokenomics in AI?", options: ["GPU tax", "Incentive structures", "Cloud fees"], correct: 1 }] },
+    'Agents': { questions: [{ question: "What defines an Autonomous Agent?", options: ["Hardcoded scripts", "Self-directed goals", "User-input only"], correct: 1 }] },
+    'Protocols': { questions: [{ question: "How do agents reach consensus?", options: ["Proof of Stake", "Proof of Inference", "Voting"], correct: 1 }] },
+    'Economy': { questions: [{ question: "What is the end-state of the Agentic Economy?", options: ["Hyper-productivity", "Human-only markets", "Stagnation"], correct: 0 }] }
+};
+
 let state = {
     address: null, 
     isEmailUser: false,
@@ -13,25 +26,103 @@ let state = {
     hasMintedBadge: false 
 };
 
-// --- 2. NAVIGATION & UI ENGINE (Fixes the Launch Button) ---
+// --- 2. NAVIGATION & UI ENGINE ---
 window.navigate = function(screenId) {
-    // Hide all sections
     document.querySelectorAll('.page-section').forEach(section => {
         section.classList.remove('active');
     });
     
-    // Show target section
     const target = document.getElementById(`${screenId}-screen`);
     if (target) {
         target.classList.add('active');
         window.scrollTo(0, 0);
     }
 
-    // Refresh UI specifically for dashboard
     if (screenId === 'dashboard') renderLevels();
 };
 
-// --- 3. WALLET & DROPDOWN LOGIC ---
+// --- 3. QUIZ ENGINE (The Missing Link) ---
+window.startQuiz = function(level) {
+    if (!DB[level]) return showToast("ERR: MODULE_DATA_NOT_FOUND");
+    
+    state.currentLevel = level;
+    state.currentQIndex = 0;
+    state.score = 0;
+    
+    navigate('quiz');
+    showQuestion();
+};
+
+function showQuestion() {
+    const quiz = DB[state.currentLevel];
+    const q = quiz.questions[state.currentQIndex];
+    
+    document.getElementById('quiz-level-name').innerText = state.currentLevel.toUpperCase();
+    document.getElementById('q-text').innerText = q.question;
+    
+    const optionsList = document.getElementById('options-list');
+    optionsList.innerHTML = '';
+    
+    q.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'launch-btn';
+        btn.style.cssText = "width: 100%; margin-bottom: 10px; text-align: left; background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--border);";
+        btn.innerText = opt;
+        btn.onclick = () => handleAnswer(idx);
+        optionsList.appendChild(btn);
+    });
+
+    document.getElementById('success-box').style.display = 'none';
+    document.getElementById('ngmi-box').style.display = 'none';
+    document.getElementById('next-btn').style.display = 'none';
+}
+
+window.handleAnswer = function(choiceIdx) {
+    const q = DB[state.currentLevel].questions[state.currentQIndex];
+    const isCorrect = choiceIdx === q.correct;
+    
+    if (isCorrect) {
+        state.score++;
+        document.getElementById('success-box').style.display = 'block';
+        document.getElementById('ngmi-box').style.display = 'none';
+    } else {
+        document.getElementById('ngmi-text').innerText = "INCORRECT_LOGIC_DETECTED";
+        document.getElementById('ngmi-box').style.display = 'block';
+        document.getElementById('success-box').style.display = 'none';
+    }
+    
+    document.getElementById('next-btn').style.display = 'block';
+};
+
+window.handleNext = function() {
+    state.currentQIndex++;
+    const totalQ = DB[state.currentLevel].questions.length;
+    
+    if (state.currentQIndex < totalQ) {
+        showQuestion();
+    } else {
+        showResults();
+    }
+};
+
+function showResults() {
+    const total = DB[state.currentLevel].questions.length;
+    const pct = (state.score / total) * 100;
+    
+    if (pct === 100) {
+        if (!state.completedLevels.includes(state.currentLevel)) {
+            state.completedLevels.push(state.currentLevel);
+            state.unlockedLevels = Math.min(5, state.completedLevels.length + 1);
+            saveProfile();
+        }
+        showToast("MODULE_COMPLETE_SUCCESS");
+    } else {
+        showToast("SCORE_INSUFFICIENT_FOR_MASTERY");
+    }
+    navigate('dashboard');
+}
+
+// --- 4. WALLET & DROPDOWN ---
 window.handleWalletAction = function() {
     if (!state.address) {
         toggleLoginModal(true);
@@ -46,7 +137,6 @@ window.toggleLoginModal = function(show) {
     modal.style.display = show ? 'flex' : 'none';
 };
 
-// Close dropdown if user clicks elsewhere
 window.onclick = function(event) {
     if (!event.target.matches('.connect-btn-nav') && !event.target.matches('#btn-text')) {
         const dropdown = document.getElementById('profile-dropdown');
@@ -56,7 +146,7 @@ window.onclick = function(event) {
     }
 };
 
-// --- 4. HYBRID LOGIN & OTP ---
+// --- 5. HYBRID LOGIN & CHECK-IN ---
 window.handleEmailLogin = function() {
     const email = document.getElementById('email-input').value;
     if (!email || !email.includes('@')) return alert("Enter a valid architect email.");
@@ -64,32 +154,22 @@ window.handleEmailLogin = function() {
     const modalContent = document.querySelector('#login-modal .card');
     modalContent.innerHTML = `
         <h2 style="font-family: 'Orbitron'; color: var(--arc-purple);">VERIFY_IDENTITY</h2>
-        <p style="font-size: 0.8rem; margin-bottom: 20px; opacity: 0.7;">Enter the 6-digit code sent to ${email}</p>
         <input type="text" id="otp-input" placeholder="000000" maxlength="6" 
                style="width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--arc-purple); color: white; border-radius: 4px; text-align: center; font-size: 1.5rem; letter-spacing: 8px; margin-bottom: 20px;">
         <button class="launch-btn" onclick="verifyOTP('${email}')" style="width:100%; background:var(--arc-purple); color:white;">VALIDATE_SEQUENCE</button>
-        <button class="back-link" onclick="location.reload()" style="margin-top:15px; background:none; border:none; color:gray; cursor:pointer; width:100%;">CANCEL</button>
     `;
 };
 
 window.verifyOTP = function(email) {
-    const otp = document.getElementById('otp-input').value;
-    if (otp.length !== 6) return alert("Invalid Sequence.");
-    
     state.address = email.toLowerCase();
     state.isEmailUser = true;
-    finalizeLogin();
-};
-
-function finalizeLogin() {
     const btnText = document.getElementById('btn-text');
     btnText.innerText = state.address.substring(0, 6).toUpperCase() + "...";
     toggleLoginModal(false);
     loadFromStorage();
     showToast("ACCOUNT_SYNC_COMPLETE");
-}
+};
 
-// --- 5. DAILY CHECK-IN ---
 window.toggleCheckinModal = function(show) {
     const modal = document.getElementById('checkin-modal');
     if (modal) modal.style.display = show ? 'flex' : 'none';
@@ -101,65 +181,39 @@ function renderCheckinGrid() {
     if (!grid) return;
     grid.innerHTML = '';
     const today = new Date().toDateString();
-    
     for (let i = 1; i <= 7; i++) {
         const isDone = i <= state.streak;
         const isCurrent = (i === state.streak + 1) && (state.lastCheckIn !== today);
-        
-        grid.innerHTML += `
-            <div class="day-box ${isDone ? 'completed' : ''} ${isCurrent ? 'current' : ''}">
-                <div style="font-size: 0.6rem; opacity: 0.6;">DAY ${i}</div>
-                <div style="font-family: Orbitron; font-size: 0.8rem; margin-top: 5px;">${i * 10}</div>
-                <div style="font-size: 0.5rem; color: var(--arc-purple);">PTS</div>
-            </div>`;
+        grid.innerHTML += `<div class="day-box ${isDone ? 'completed' : ''} ${isCurrent ? 'current' : ''}">DAY ${i}</div>`;
     }
 }
 
 window.processCheckIn = async function() {
-    const today = new Date().toDateString();
-    if (state.lastCheckIn === today) return showToast("SEQUENCE_ALREADY_SYNCED_TODAY");
-
-    const btn = document.getElementById('checkin-btn');
-    const originalText = btn.innerText;
-
-    try {
-        btn.innerText = "SIGNING...";
-        btn.disabled = true;
-        await new Promise(res => setTimeout(res, 1200)); // Simulated Network Latency
-
-        state.streak = (state.streak >= 7) ? 1 : state.streak + 1;
-        state.lastCheckIn = today;
-        
-        document.getElementById('checkin-dot').classList.remove('active');
-        showToast(`SYNC_SUCCESS: DAY ${state.streak} STREAK`);
-        toggleCheckinModal(false);
-        saveProfile();
-    } catch (e) {
-        showToast("ERR: TRANSACTION_REJECTED");
-    } finally {
-        btn.innerText = originalText;
-        btn.disabled = false;
-    }
+    state.streak = (state.streak >= 7) ? 1 : state.streak + 1;
+    state.lastCheckIn = new Date().toDateString();
+    document.getElementById('checkin-dot').classList.remove('active');
+    showToast(`SYNC_SUCCESS: DAY ${state.streak} STREAK`);
+    toggleCheckinModal(false);
+    saveProfile();
 };
 
-// --- 6. DASHBOARD & STORAGE ---
+// --- 6. DASHBOARD RENDER & STORAGE ---
 function renderLevels() {
     const grid = document.getElementById('levels-grid');
     if (!grid) return;
     grid.innerHTML = '';
-    
-    // Simple mock levels
+    const levelNames = ['Basics', 'Economics', 'Agents', 'Protocols', 'Economy'];
+
     for (let i = 1; i <= 5; i++) {
         const isLocked = i > state.unlockedLevels;
+        const levelKey = levelNames[i-1];
         grid.innerHTML += `
-            <div class="card" style="opacity: ${isLocked ? '0.5' : '1'}; border: 1px solid ${isLocked ? 'gray' : 'var(--arc-purple)'}; padding: 20px; text-align: center;">
+            <div class="card" style="opacity: ${isLocked ? '0.5' : '1'}; border: 1px solid ${isLocked ? 'gray' : 'var(--arc-purple)'}; padding: 20px; text-align: center; margin-bottom:15px;">
                 <h3 style="font-family: 'Orbitron'; font-size: 0.8rem;">MODULE_0${i}</h3>
-                <p style="font-size: 0.7rem; margin: 10px 0;">Agentic Economics Basics</p>
-                <button class="launch-btn" ${isLocked ? 'disabled' : ''} style="font-size: 0.7rem; padding: 5px 10px;">
+                <button class="launch-btn" ${isLocked ? 'disabled' : ''} onclick="startQuiz('${levelKey}')">
                     ${isLocked ? 'LOCKED' : 'ENTER'}
                 </button>
-            </div>
-        `;
+            </div>`;
     }
 }
 
@@ -171,23 +225,9 @@ function showToast(message) {
     setTimeout(() => toast.remove(), 3000);
 }
 
-function saveProfile() {
-    if (state.address) {
-        localStorage.setItem(`arc_user_${state.address}`, JSON.stringify(state));
-    }
-}
-
+function saveProfile() { if (state.address) localStorage.setItem(`arc_user_${state.address}`, JSON.stringify(state)); }
 function loadFromStorage() {
     const saved = localStorage.getItem(`arc_user_${state.address}`);
-    if (saved) {
-        Object.assign(state, JSON.parse(saved));
-        const today = new Date().toDateString();
-        const dot = document.getElementById('checkin-dot');
-        if (state.lastCheckIn === today) dot.classList.remove('active');
-    }
+    if (saved) Object.assign(state, JSON.parse(saved));
 }
-
-window.disconnect = function() {
-    state.address = null;
-    location.reload();
-};
+window.disconnect = function() { state.address = null; location.reload(); };
