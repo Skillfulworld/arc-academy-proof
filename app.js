@@ -7,12 +7,12 @@ let state = {
     currentLevel: null,
     currentQIndex: 0,
     score: 0,
-    visitedDocs: new Set(), // Tracks if "Read" was clicked
+    visitedDocs: new Set(),
     streak: 0,
     lastCheckIn: null
 };
 
-// --- 2. THE AUTHENTIC DATABASE ---
+// --- 2. THE DATABASE ---
 const DB = {
     'Quiz 1': {
         name: "Arc House & Architects Program",
@@ -71,23 +71,30 @@ const DB = {
     }
 };
 
-// --- 3. UTILS: SHUFFLE ALGORITHM ---
+// --- 3. UTILS ---
 function shuffleArray(array) {
-    let currentIndex = array.length, randomIndex;
-    while (currentIndex != 0) {
-        randomIndex = Math.floor(Math.random() * currentIndex);
-        currentIndex--;
-        [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
     }
     return array;
 }
 
-// --- 4. NAVIGATION & DASHBOARD ---
+// --- 4. NAVIGATION ---
 window.navigate = function(screenId) {
-    document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
-    const target = document.getElementById(`${screenId}-screen`);
-    if (target) target.classList.add('active');
-    if (screenId === 'dashboard') renderLevels();
+    document.querySelectorAll('.page-section').forEach(s => {
+        s.classList.remove('active');
+        s.style.display = 'none'; // Ensure previous screens are fully hidden
+    });
+    
+    const targetId = screenId.includes('-screen') ? screenId : `${screenId}-screen`;
+    const target = document.getElementById(targetId);
+    
+    if (target) {
+        target.classList.add('active');
+        target.style.display = 'flex'; // Force display when active
+        if (screenId === 'dashboard') renderLevels();
+    }
 };
 
 window.openDoc = function(levelKey, url) {
@@ -108,26 +115,28 @@ function renderLevels() {
         const hasRead = state.visitedDocs.has(key);
         const data = DB[key];
 
-        grid.innerHTML += `
-            <div class="card" style="opacity: ${isUnlocked ? '1' : '0.4'}; border: 1px solid ${isUnlocked ? 'var(--arc-purple)' : '#333'}; padding: 25px; margin-bottom: 20px; background: rgba(0,0,0,0.2);">
-                <h3 style="font-family: 'Orbitron'; font-size: 0.85rem;">MODULE_0${levelNum}</h3>
-                <p style="font-size: 0.7rem; color: #888; margin-bottom: 15px;">${data.name}</p>
-                
-                <div style="display: flex; gap: 10px;">
-                    <button class="launch-btn" onclick="openDoc('${key}', '${data.link}')" 
-                            style="flex: 1; background: none; border: 1px solid var(--arc-purple); color: var(--arc-purple); ${!isUnlocked ? 'display:none;' : ''}">
-                        ${hasRead ? '✅ Read' : 'Read'}
-                    </button>
-                    <button class="launch-btn" ${(!isUnlocked || !hasRead) ? 'disabled' : ''} onclick="startQuiz('${key}')" 
-                            style="flex: 1; opacity: ${(!isUnlocked || !hasRead) ? '0.3' : '1'};">
-                        Start
-                    </button>
-                </div>
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.style.cssText = `opacity: ${isUnlocked ? '1' : '0.4'}; border: 1px solid ${isUnlocked ? 'var(--arc-purple)' : 'var(--border)'};`;
+        
+        card.innerHTML = `
+            <h3 style="font-family: 'Orbitron'; font-size: 0.85rem;">MODULE_0${levelNum}</h3>
+            <p style="font-size: 0.7rem; color: #888; margin-bottom: 15px;">${data.name}</p>
+            <div style="display: flex; gap: 10px;">
+                <button class="connect-btn-nav" onclick="openDoc('${key}', '${data.link}')" 
+                        style="flex: 1; ${!isUnlocked ? 'display:none;' : ''}">
+                    ${hasRead ? '✅ READ' : 'READ'}
+                </button>
+                <button class="launch-btn" ${(!isUnlocked || !hasRead) ? 'disabled' : ''} onclick="startQuiz('${key}')" 
+                        style="flex: 1;">
+                    START
+                </button>
             </div>`;
+        grid.appendChild(card);
     });
 }
 
-// --- 5. QUIZ ENGINE (With Shuffle) ---
+// --- 5. QUIZ ENGINE ---
 window.startQuiz = function(levelKey) {
     state.currentLevel = levelKey;
     state.currentQIndex = 0;
@@ -143,16 +152,14 @@ function showQuestion() {
     document.getElementById('quiz-level-name').innerText = state.currentLevel.toUpperCase();
     document.getElementById('q-text').innerText = qData.q;
     
-    // SHUFFLE OPTIONS HERE
     const shuffledOptions = shuffleArray([...qData.options]);
-    
     const optionsList = document.getElementById('options-list');
     optionsList.innerHTML = '';
     
     shuffledOptions.forEach(opt => {
         const btn = document.createElement('button');
         btn.className = 'launch-btn';
-        btn.style.cssText = "width: 100%; margin-bottom: 10px; text-align: left; background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1);";
+        btn.style.cssText = "width: 100%; margin-bottom: 10px; text-align: left; background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); text-transform: none; font-weight: 400;";
         btn.innerText = opt;
         btn.onclick = () => handleAnswer(opt, qData.correct);
         optionsList.appendChild(btn);
@@ -165,6 +172,9 @@ function showQuestion() {
 
 window.handleAnswer = function(selectedOption, correctOption) {
     const isCorrect = selectedOption === correctOption;
+    // Disable all buttons after selection
+    document.querySelectorAll('#options-list .launch-btn').forEach(b => b.disabled = true);
+    
     if (isCorrect) {
         state.score++;
         document.getElementById('success-box').style.display = 'block';
@@ -186,23 +196,24 @@ window.handleNext = function() {
 function finishQuiz() {
     const total = DB[state.currentLevel].questions.length;
     if (state.score === total) {
-        if (state.unlockedLevels === (Object.keys(DB).indexOf(state.currentLevel) + 1)) {
+        const currentIndex = Object.keys(DB).indexOf(state.currentLevel) + 1;
+        if (state.unlockedLevels === currentIndex) {
             state.unlockedLevels++;
         }
         showToast("MASTERY_ACHIEVED: LEVEL_UNLOCKED");
     } else {
-        showToast("SCORE_INSUFFICIENT");
+        showToast(`SCORE: ${state.score}/${total}. TRY AGAIN.`);
     }
     navigate('dashboard');
 }
 
-// --- 6. AUTH & UTILS ---
+// --- 6. AUTH & UI ---
 window.handleWalletAction = function() {
     if (!state.address) document.getElementById('login-modal').style.display = 'flex';
     else document.getElementById('profile-dropdown').classList.toggle('show');
 };
 
-window.verifyOTP = function() {
+window.handleEmailLogin = function() {
     state.address = "ARCHITECT_0x1";
     document.getElementById('btn-text').innerText = "0x1...ARCH";
     document.getElementById('login-modal').style.display = 'none';
@@ -211,7 +222,7 @@ window.verifyOTP = function() {
 
 function showToast(m) {
     const t = document.createElement('div');
-    t.style.cssText = "position:fixed; bottom:20px; right:20px; background:var(--arc-purple); color:white; padding:12px; border-radius:4px; font-family:'Orbitron'; z-index:9999; font-size:0.7rem;";
+    t.style.cssText = "position:fixed; bottom:20px; left:20px; background:var(--arc-purple); color:white; padding:12px; border-radius:4px; font-family:'Orbitron'; z-index:9999; font-size:0.7rem; border: 1px solid white;";
     t.innerText = m;
     document.body.appendChild(t);
     setTimeout(() => t.remove(), 3000);
